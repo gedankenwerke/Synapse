@@ -1,0 +1,432 @@
+{
+  "metadata": {
+    "title": "Synapse",
+    "description": "Internal Organization System"
+  },
+  "a11y": {
+    "toggleColorScheme": "Toggle color scheme"
+  },
+  "common": {
+    "close": "Close",
+    "cancel": "Cancel",
+    "save": "Save",
+    "confirm": "Confirm",
+    "search": "Search",
+    "refresh": "Refresh",
+    "export": "Export",
+    "error": "Error",
+    "success": "Success",
+    "searchError": "Search Error",
+    "noRecordsFound": "No records found",
+    "viewDetails": "View Details",
+    "na": "N/A",
+    "unknown": "Unknown",
+    "somethingWentWrong": "Something went wrong",
+    "tryAgain": "Try again",
+    "copied": "Copied!",
+    "pagination": {
+      "items": "{start}-{end} of {total} items",
+      "data": "from {total} data"
+    },
+    "dropzone": {
+      "dragOrClick": "Drag image here or click to upload",
+      "fileHint": "PNG, JPG up to 5MB"
+    },
+    "dateRange": "Date range",
+    "startDate": "Start date",
+    "endDate": "End date"
+  },
+  "login": {
+    "title": "Synapse",
+    "subtitle": "Internal Organization System",
+    "error": {
+      "fieldsRequired": "Please enter username and password",
+      "title": "Error",
+      "loginFailed": "Login failed"
+    },
+    "form": {
+      "username": "Username",
+      "usernamePlaceholder": "Enter your username",
+      "password": "Password",
+      "passwordPlaceholder": "Enter your password"
+    },
+    "button": {
+      "loading": "Signing in...",
+      "submit": "Sign In"
+    }
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "accountStatement": "Account Statement",
+    "netBalance": "Net Balance",
+    "transaction": "Transaction",
+    "apiKeys": "API Keys",
+    "customerSettlement": "Customer Settlement",
+    "userManagement": "User Management"
+  },
+  "breadcrumb": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "accountStatement": "Account Statement",
+    "netBalance": "Net Balance",
+    "transaction": "Transaction",
+    "apiKeys": "API Keys",
+    "customerSettlement": "Customer Settlement",
+    "userManagement": "User Management",
+    "transactions": "Transactions",
+    "page": "Page"
+  },
+  "user": {
+    "unknown": "Unknown",
+    "role": {
+      "superAdmin": "Super Admin"
+    },
+    "menu": {
+      "account": "Account",
+      "profile": "Profile",
+      "settings": "Settings",
+      "logout": "Logout",
+      "language": "Language"
+    }
+  },
+  "dashboard": {
+    "title": "Overview Dashboard",
+    "stats": {
+      "totalBalance": "Total Balance",
+      "todayDeposits": "Today's Deposits",
+      "todayWithdrawals": "Today's Withdrawals",
+      "activeUsers": "Active Users",
+      "fromLastWeek": "from last week"
+    },
+    "charts": {
+      "depositVsWithdrawal": "Deposit vs Withdrawal (7 Days)",
+      "deposits": "Deposits",
+      "withdrawals": "Withdrawals",
+      "transactionStatus": "Transaction Status"
+    },
+    "recentTransactions": {
+      "title": "Recent Transactions",
+      "colTransactionId": "Transaction ID",
+      "colUser": "User",
+      "colType": "Type",
+      "colAmount": "Amount",
+      "colStatus": "Status"
+    }
+  },
+  "status": {
+    "completed": "Completed",
+    "pending": "Pending",
+    "rejected": "Rejected",
+    "active": "Active",
+    "inactive": "Inactive",
+    "success": "Success",
+    "failed": "Failed",
+    "processed": "Processed",
+    "revoked": "Revoked"
+  },
+  "type": {
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "withdrawal": "Withdrawal"
+  },
+  "days": {
+    "mon": "Mon",
+    "tue": "Tue",
+    "wed": "Wed",
+    "thu": "Thu",
+    "fri": "Fri",
+    "sat": "Sat",
+    "sun": "Sun"
+  },
+  "bank": {
+    "other": "Other Bank",
+    "kbank": "KBank",
+    "scb": "SCB",
+    "bbl": "BBL",
+    "krungthai": "Krungthai",
+    "tmb": "TMB",
+    "bay": "Bay",
+    "cimb": "CIMB",
+    "uob": "UOB"
+  },
+  "accountStatement": {
+    "title": "Account Statement",
+    "searchPlaceholder": "Search by Req Trans ID...",
+    "error": {
+      "loadFailed": "Failed to load account statements",
+      "loadMoreFailed": "Failed to load more statements",
+      "searchFailed": "Failed to search statements",
+      "refreshFailed": "Failed to refresh"
+    },
+    "exportComingSoon": "Export functionality coming soon",
+    "colDate": "Date",
+    "colTransactionId": "Transaction ID",
+    "colType": "Type",
+    "colAmount": "Amount",
+    "colBank": "Bank",
+    "colAccountNo": "Account No",
+    "colName": "Name",
+    "modal": {
+      "title": "Statement Details",
+      "transactionId": "Transaction ID",
+      "dateTime": "Date & Time",
+      "type": "Type",
+      "amount": "Amount",
+      "availableBalance": "Available Balance",
+      "bank": "Bank",
+      "accountNo": "Account No",
+      "nameTh": "Name (TH)",
+      "nameEn": "Name (EN)",
+      "transactionName": "Transaction Name",
+      "channel": "Channel",
+      "clientId": "Client ID",
+      "reqTransId": "Req Trans ID",
+      "status": "Status"
+    }
+  },
+  "transaction": {
+    "title": "Transactions",
+    "listTitle": "Transaction List",
+    "searchPlaceholder": "Search by Trans ID...",
+    "error": {
+      "loadFailed": "Failed to load transactions",
+      "loadMoreFailed": "Failed to load more transactions",
+      "searchFailed": "Failed to search transactions",
+      "refreshFailed": "Failed to refresh"
+    },
+    "emptyState": "No transactions found",
+    "colTransId": "Trans ID",
+    "colDate": "Date",
+    "colUser": "User",
+    "colType": "Type",
+    "colAmount": "Amount",
+    "colStatus": "Status",
+    "modal": {
+      "title": "Transaction Details",
+      "transId": "Trans ID",
+      "dateTime": "Date & Time",
+      "user": "User",
+      "userId": "User ID",
+      "type": "Type",
+      "amount": "Amount",
+      "status": "Status",
+      "clientStatus": "Client Status",
+      "accountId": "Account ID",
+      "reqTransId": "Req Trans ID",
+      "bank": "Bank",
+      "accountNo": "Account No",
+      "sendId": "Send ID",
+      "sendStatus": "Send Status",
+      "resStatus": "Res Status",
+      "remark": "Remark"
+    },
+    "exportComingSoon": "Export functionality coming soon"
+  },
+  "netBalance": {
+    "title": "Net Balance Overview",
+    "subtitle": "Daily aggregated deposit and withdrawal summaries per account.",
+    "card": {
+      "account": "Account",
+      "netBalance": "Net Balance",
+      "deposit": "Deposit",
+      "withdrawal": "Withdrawal",
+      "updated": "Updated"
+    },
+    "error": {
+      "loadFailed": "Failed to load net balance data",
+      "refreshFailed": "Failed to refresh"
+    },
+    "selectDate": "Select date",
+    "emptyState": "No data found for this date."
+  },
+  "apiKeys": {
+    "title": "API Keys Management",
+    "searchPlaceholder": "Search by key name...",
+    "generateNewKey": "+ Generate New API Key",
+    "success": {
+      "generated": "API key generated successfully",
+      "revoked": "Key \"${name}\" has been revoked",
+      "deleted": "Key \"${name}\" has been deleted"
+    },
+    "colKeyName": "Key Name",
+    "colApiKey": "API Key",
+    "colCreatedDate": "Created Date",
+    "colStatus": "Status",
+    "copyKey": "Copy key",
+    "revoke": "Revoke",
+    "delete": "Delete",
+    "modal": {
+      "generateTitle": "Generate New API Key",
+      "keyNameLabel": "Key Name / Description",
+      "keyNamePlaceholder": "e.g., Production API, Staging Environment",
+      "generate": "Generate",
+      "successTitle": "API Key Generated Successfully",
+      "securityWarning": "Please copy this API key and store it securely. For security reasons, you will not be able to see it again.",
+      "keyName": "Key Name",
+      "apiKey": "API Key",
+      "copyToClipboard": "Copy to Clipboard",
+      "copiedToClipboard": "Copied to Clipboard!",
+      "revokeTitle": "Revoke API Key",
+      "deleteTitle": "Delete API Key",
+      "revokeConfirmation": "Are you sure you want to revoke the API key \"${name}\"? This will immediately disable the key and any applications using it will lose access.",
+      "deleteConfirmation": "Are you sure you want to permanently delete the API key \"${name}\"? This action cannot be undone.",
+      "revoke": "Revoke",
+      "delete": "Delete"
+    },
+    "validation": {
+      "keyNameRequired": "Key name is required"
+    }
+  },
+  "settlement": {
+    "title": "Customer Settlement (Payouts)",
+    "searchPlaceholder": "Search by Settlement ID or User Name...",
+    "allStatus": "All Status",
+    "addSettlement": "Add Settlement",
+    "success": {
+      "added": "Settlement added successfully",
+      "processed": "Payout for ${userName} has been processed"
+    },
+    "colSettlementId": "Settlement ID",
+    "colRequestDate": "Request Date",
+    "colUser": "User",
+    "colBankDetails": "Bank Details",
+    "colAmount": "Amount",
+    "colStatus": "Status",
+    "processPayout": "Process Payout",
+    "viewSlip": "View Slip",
+    "modal": {
+      "addTitle": "Add Settlement",
+      "userNameLabel": "User ID / Name",
+      "userNamePlaceholder": "Enter user ID or name",
+      "bankTypeLabel": "Bank Type",
+      "bankTypePlaceholder": "Select bank",
+      "accountNumberLabel": "Account Number",
+      "accountNumberPlaceholder": "Enter account number",
+      "amountLabel": "Amount (฿)",
+      "amountPlaceholder": "Enter amount",
+      "remarkLabel": "Remark",
+      "remarkPlaceholder": "Optional remark or note",
+      "addSettlement": "Add Settlement",
+      "processPayoutTitle": "Process Payout",
+      "settlementId": "Settlement ID",
+      "requestDate": "Request Date",
+      "user": "User",
+      "bankDetails": "Bank Details",
+      "amountToTransfer": "Amount to Transfer",
+      "uploadSlipLabel": "Upload Transfer Slip (Proof of Payment)",
+      "confirmTransfer": "Confirm Transfer & Mark as Processed",
+      "detailsTitle": "Settlement Details",
+      "amount": "Amount",
+      "status": "Status",
+      "transferSlip": "Transfer Slip"
+    },
+    "validation": {
+      "userNameRequired": "User name is required",
+      "bankTypeRequired": "Bank type is required",
+      "accountNumberRequired": "Account number is required",
+      "amountGreaterThanZero": "Amount must be greater than 0"
+    }
+  },
+  "userManagement": {
+    "title": "User Management",
+    "searchPlaceholder": "Search users...",
+    "allStatus": "All Status",
+    "addUser": "Add User",
+    "tab": {
+      "userRole": "User Role",
+      "username": "Username",
+      "activityLog": "Activity Log"
+    },
+    "comingSoon": {
+      "userRole": "User Role content coming soon",
+      "activityLog": "Activity Log content coming soon",
+      "tenants": "Tenant & role management coming soon",
+      "roles": "Role management coming soon"
+    },
+    "success": {
+      "userAdded": "User added successfully",
+      "userUpdated": "User updated successfully",
+      "userDeleted": "User deleted successfully"
+    },
+    "viewUser": "View User",
+    "colRole": "Role",
+    "colFullName": "Full Name",
+    "colUsername": "Username",
+    "colEmail": "Email",
+    "colPhoneNumber": "Phone Number",
+    "colDateCreated": "Date Created",
+    "colStatus": "Status",
+    "roles": {
+      "superAdmin": "Super Admin",
+      "admin": "Admin",
+      "manager": "Manager",
+      "staff": "Staff",
+      "viewer": "Viewer"
+    },
+    "modal": {
+      "addTitle": "Add User",
+      "editTitle": "Edit User",
+      "deleteTitle": "Delete User",
+      "roleLabel": "Role",
+      "rolePlaceholder": "Select role",
+      "fullNameLabel": "Full Name",
+      "fullNamePlaceholder": "Enter full name",
+      "usernameLabel": "Username",
+      "usernamePlaceholder": "Enter username",
+      "emailLabel": "Email",
+      "emailPlaceholder": "Enter email address",
+      "phoneLabel": "Phone Number",
+      "phonePlaceholder": "Enter phone number",
+      "statusLabel": "Status",
+      "deleteConfirmation": "Are you sure you want to delete user \"${userName}\"?",
+      "assignTitle": "Assign Tenant",
+      "editAssignmentTitle": "Edit Assignment",
+      "removeAssignmentTitle": "Remove Assignment",
+      "removeAssignmentConfirmation": "Are you sure you want to remove the assignment for \"{userName}\" in \"{tenantName}\"?",
+      "tenantLabel": "Tenant",
+      "tenantPlaceholder": "Select tenant",
+      "permissionsLabel": "Permissions",
+      "assign": "Assign",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "Enter password"
+    },
+    "validation": {
+      "fullNameRequired": "Full name is required",
+      "usernameRequired": "Username is required",
+      "invalidEmail": "Invalid email address",
+      "roleRequired": "Role is required",
+      "tenantRequired": "Tenant is required",
+      "duplicateAssignment": "User is already assigned to this tenant",
+      "passwordRequired": "Password is required"
+    },
+    "colUserInfo": "User",
+    "colTenants": "Tenants & Roles",
+    "colActions": "Actions",
+    "colCreated": "Created",
+    "badgeMore": "+{count} more",
+    "noAssignments": "No assignments",
+    "drawer": {
+      "editTitle": "Edit User — {name}",
+      "profileSection": "Profile",
+      "assignmentsSection": "Tenant & Role Assignments",
+      "addAssignmentSection": "Assign to New Tenant",
+      "saveChanges": "Save Changes"
+    },
+    "assignTenant": "Assign Tenant",
+    "tenantCount": "{count} tenant(s)",
+    "removeAssignment": "Remove",
+    "addAssignment": "Add Assignment",
+    "error": {
+      "createFailed": "Failed to create user",
+      "updateFailed": "Failed to update user",
+      "deleteFailed": "Failed to delete user",
+      "loadFailed": "Failed to load users"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "showing": "Showing {start}-{end} of {total}",
+      "totalItems": "{total} users"
+    }
+  }
+}

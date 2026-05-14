@@ -1,0 +1,432 @@
+{
+  "metadata": {
+    "title": "Synapse",
+    "description": "ระบบภายในองค์กร"
+  },
+  "a11y": {
+    "toggleColorScheme": "สลับธีมสี"
+  },
+  "common": {
+    "close": "ปิด",
+    "cancel": "ยกเลิก",
+    "save": "บันทึก",
+    "confirm": "ยืนยัน",
+    "search": "ค้นหา",
+    "refresh": "รีเฟรช",
+    "export": "ส่งออก",
+    "error": "ผิดพลาด",
+    "success": "สำเร็จ",
+    "searchError": "ค้นหาผิดพลาด",
+    "noRecordsFound": "ไม่พบข้อมูล",
+    "viewDetails": "ดูรายละเอียด",
+    "na": "ไม่ระบุ",
+    "unknown": "ไม่ทราบ",
+    "somethingWentWrong": "เกิดข้อผิดพลาด",
+    "tryAgain": "ลองอีกครั้ง",
+    "copied": "คัดลอกแล้ว!",
+    "pagination": {
+      "items": "{start}-{end} จาก {total} รายการ",
+      "data": "จาก {total} ข้อมูล"
+    },
+    "dropzone": {
+      "dragOrClick": "ลากรูปมาวาง หรือคลิกเพื่ออัปโหลด",
+      "fileHint": "PNG, JPG ไม่เกิน 5MB"
+    },
+    "dateRange": "ช่วงวันที่",
+    "startDate": "วันที่เริ่มต้น",
+    "endDate": "วันที่สิ้นสุด"
+  },
+  "login": {
+    "title": "Synapse",
+    "subtitle": "ระบบภายในองค์กร",
+    "error": {
+      "fieldsRequired": "กรุณากรอก username และ password",
+      "title": "ผิดพลาด",
+      "loginFailed": "เข้าสู่ระบบไม่สำเร็จ"
+    },
+    "form": {
+      "username": "ชื่อผู้ใช้",
+      "usernamePlaceholder": "กรอกชื่อผู้ใช้",
+      "password": "รหัสผ่าน",
+      "passwordPlaceholder": "กรอกรหัสผ่าน"
+    },
+    "button": {
+      "loading": "กำลังเข้าสู่ระบบ...",
+      "submit": "เข้าสู่ระบบ"
+    }
+  },
+  "nav": {
+    "dashboard": "แดชบอร์ด",
+    "accountStatement": "รายการบัญชี",
+    "netBalance": "ยอดคงเหลือสุทธิ",
+    "transaction": "ธุรกรรม",
+    "apiKeys": "API Keys",
+    "customerSettlement": "การชำระเงินลูกค้า",
+    "userManagement": "จัดการผู้ใช้"
+  },
+  "breadcrumb": {
+    "home": "หน้าแรก",
+    "dashboard": "แดชบอร์ด",
+    "accountStatement": "รายการบัญชี",
+    "netBalance": "ยอดคงเหลือสุทธิ",
+    "transaction": "ธุรกรรม",
+    "apiKeys": "API Keys",
+    "customerSettlement": "การชำระเงินลูกค้า",
+    "userManagement": "จัดการผู้ใช้",
+    "transactions": "ธุรกรรม",
+    "page": "หน้า"
+  },
+  "user": {
+    "unknown": "ไม่ทราบ",
+    "role": {
+      "superAdmin": "ผู้ดูแลระบบ"
+    },
+    "menu": {
+      "account": "บัญชี",
+      "profile": "โปรไฟล์",
+      "settings": "ตั้งค่า",
+      "logout": "ออกจากระบบ",
+      "language": "ภาษา"
+    }
+  },
+  "dashboard": {
+    "title": "ภาพรวมแดชบอร์ด",
+    "stats": {
+      "totalBalance": "ยอดคงเหลือทั้งหมด",
+      "todayDeposits": "ฝากวันนี้",
+      "todayWithdrawals": "ถอนวันนี้",
+      "activeUsers": "ผู้ใช้งานที่ใช้งาน",
+      "fromLastWeek": "จากสัปดาห์ที่แล้ว"
+    },
+    "charts": {
+      "depositVsWithdrawal": "ฝาก vs ถอน (7 วัน)",
+      "deposits": "ฝาก",
+      "withdrawals": "ถอน",
+      "transactionStatus": "สถานะธุรกรรม"
+    },
+    "recentTransactions": {
+      "title": "ธุรกรรมล่าสุด",
+      "colTransactionId": "รหัสธุรกรรม",
+      "colUser": "ผู้ใช้",
+      "colType": "ประเภท",
+      "colAmount": "จำนวน",
+      "colStatus": "สถานะ"
+    }
+  },
+  "status": {
+    "completed": "เสร็จสมบูรณ์",
+    "pending": "รอดำเนินการ",
+    "rejected": "ถูกปฏิเสธ",
+    "active": "ใช้งานได้",
+    "inactive": "ไม่ใช้งาน",
+    "success": "สำเร็จ",
+    "failed": "ล้มเหลว",
+    "processed": "ดำเนินการแล้ว",
+    "revoked": "ถูกเพิกถอน"
+  },
+  "type": {
+    "deposit": "ฝาก",
+    "withdraw": "ถอน",
+    "withdrawal": "การถอน"
+  },
+  "days": {
+    "mon": "จันทร์",
+    "tue": "อังคาร",
+    "wed": "พุธ",
+    "thu": "พฤหัสบดี",
+    "fri": "ศุกร์",
+    "sat": "เสาร์",
+    "sun": "อาทิตย์"
+  },
+  "bank": {
+    "other": "ธนาคารอื่น",
+    "kbank": "กสิกรไทย",
+    "scb": "ไทยพาณิชย์",
+    "bbl": "กรุงเทพ",
+    "krungthai": "กรุงไทย",
+    "tmb": "ทหารไทย",
+    "bay": "กรุงศรีอยุธยา",
+    "cimb": "ซีไอเอ็มบี",
+    "uob": "ยูโอบี"
+  },
+  "accountStatement": {
+    "title": "รายการบัญชี",
+    "searchPlaceholder": "ค้นหาด้วย Req Trans ID...",
+    "error": {
+      "loadFailed": "โหลดรายการบัญชีไม่สำเร็จ",
+      "loadMoreFailed": "โหลดรายการเพิ่มเติมไม่สำเร็จ",
+      "searchFailed": "ค้นหารายการบัญชีไม่สำเร็จ",
+      "refreshFailed": "รีเฟรชไม่สำเร็จ"
+    },
+    "exportComingSoon": "ฟีเจอร์ส่งออกจะเพิ่มเร็วๆ นี้",
+    "colDate": "วันที่",
+    "colTransactionId": "รหัสธุรกรรม",
+    "colType": "ประเภท",
+    "colAmount": "จำนวนเงิน",
+    "colBank": "ธนาคาร",
+    "colAccountNo": "เลขบัญชี",
+    "colName": "ชื่อ",
+    "modal": {
+      "title": "รายละเอียดรายการบัญชี",
+      "transactionId": "รหัสธุรกรรม",
+      "dateTime": "วันที่และเวลา",
+      "type": "ประเภท",
+      "amount": "จำนวนเงิน",
+      "availableBalance": "ยอดคงเหลือที่ใช้ได้",
+      "bank": "ธนาคาร",
+      "accountNo": "เลขบัญชี",
+      "nameTh": "ชื่อ (TH)",
+      "nameEn": "ชื่อ (EN)",
+      "transactionName": "ชื่อธุรกรรม",
+      "channel": "ช่องทาง",
+      "clientId": "รหัสลูกค้า",
+      "reqTransId": "Req Trans ID",
+      "status": "สถานะ"
+    }
+  },
+  "transaction": {
+    "title": "ธุรกรรม",
+    "listTitle": "รายการธุรกรรม",
+    "searchPlaceholder": "ค้นหาด้วย Trans ID...",
+    "error": {
+      "loadFailed": "โหลดรายการธุรกรรมไม่สำเร็จ",
+      "loadMoreFailed": "โหลดรายการเพิ่มเติมไม่สำเร็จ",
+      "searchFailed": "ค้นหารายการธุรกรรมไม่สำเร็จ",
+      "refreshFailed": "รีเฟรชไม่สำเร็จ"
+    },
+    "emptyState": "ไม่พบรายการธุรกรรม",
+    "colTransId": "รหัสธุรกรรม",
+    "colDate": "วันที่",
+    "colUser": "ผู้ใช้",
+    "colType": "ประเภท",
+    "colAmount": "จำนวนเงิน",
+    "colStatus": "สถานะ",
+    "modal": {
+      "title": "รายละเอียดธุรกรรม",
+      "transId": "รหัสธุรกรรม",
+      "dateTime": "วันที่และเวลา",
+      "user": "ผู้ใช้",
+      "userId": "รหัสผู้ใช้",
+      "type": "ประเภท",
+      "amount": "จำนวนเงิน",
+      "status": "สถานะ",
+      "clientStatus": "สถานะลูกค้า",
+      "accountId": "รหัสบัญชี",
+      "reqTransId": "Req Trans ID",
+      "bank": "ธนาคาร",
+      "accountNo": "เลขบัญชี",
+      "sendId": "รหัสการส่ง",
+      "sendStatus": "สถานะการส่ง",
+      "resStatus": "สถานะผลการตอบกลับ",
+      "remark": "หมายเหตุ"
+    },
+    "exportComingSoon": "ฟีเจอร์ส่งออกจะเพิ่มเร็วๆ นี้"
+  },
+  "netBalance": {
+    "title": "ภาพรวมยอดคงเหลือสุทธิ",
+    "subtitle": "สรุปยอดฝากและถอนรายวันต่อบัญชี",
+    "card": {
+      "account": "บัญชี",
+      "netBalance": "ยอดคงเหลือสุทธิ",
+      "deposit": "ฝาก",
+      "withdrawal": "ถอน",
+      "updated": "อัปเดตแล้ว"
+    },
+    "error": {
+      "loadFailed": "โหลดข้อมูลยอดคงเหลือสุทธิไม่สำเร็จ",
+      "refreshFailed": "รีเฟรชไม่สำเร็จ"
+    },
+    "selectDate": "เลือกวันที่",
+    "emptyState": "ไม่พบข้อมูลสำหรับวันที่นี้"
+  },
+  "apiKeys": {
+    "title": "จัดการ API Keys",
+    "searchPlaceholder": "ค้นหาด้วยชื่อ key...",
+    "generateNewKey": "+ สร้าง API Key ใหม่",
+    "success": {
+      "generated": "สร้าง API key สำเร็จ",
+      "revoked": "Key \"${name}\" ถูกเพิกถอนแล้ว",
+      "deleted": "Key \"${name}\" ถูกลบแล้ว"
+    },
+    "colKeyName": "ชื่อ Key",
+    "colApiKey": "API Key",
+    "colCreatedDate": "วันที่สร้าง",
+    "colStatus": "สถานะ",
+    "copyKey": "คัดลอก key",
+    "revoke": "เพิกถอน",
+    "delete": "ลบ",
+    "modal": {
+      "generateTitle": "สร้าง API Key ใหม่",
+      "keyNameLabel": "ชื่อ Key / คำอธิบาย",
+      "keyNamePlaceholder": "เช่น, Production API, Staging Environment",
+      "generate": "สร้าง",
+      "successTitle": "สร้าง API Key สำเร็จ",
+      "securityWarning": "กรุณาคัดลอก API key นี้และเก็บรักษาไว้อย่างปลอดภัย ด้วยเหตุผลด้านความปลอดภัย คุณจะไม่สามารถดู key นี้ได้อีก",
+      "keyName": "ชื่อ Key",
+      "apiKey": "API Key",
+      "copyToClipboard": "คัดลอกไปยังคลิปบอร์ด",
+      "copiedToClipboard": "คัดลอกไปยังคลิปบอร์ดแล้ว!",
+      "revokeTitle": "เพิกถอน API Key",
+      "deleteTitle": "ลบ API Key",
+      "revokeConfirmation": "คุณแน่ใจหรือไม่ว่าต้องการเพิกถอน API key \"${name}\"? การดำเนินการนี้จะปิดใช้งาน key ทันทีและแอปพลิเคชันที่ใช้ key นี้จะไม่สามารถเข้าถึงได้",
+      "deleteConfirmation": "คุณแน่ใจหรือไม่ว่าต้องการลบ API key \"${name}\"? การดำเนินการนี้ไม่สามารถย้อนกลับได้",
+      "revoke": "เพิกถอน",
+      "delete": "ลบ"
+    },
+    "validation": {
+      "keyNameRequired": "ต้องระบุชื่อ key"
+    }
+  },
+  "settlement": {
+    "title": "การชำระเงินลูกค้า (Payouts)",
+    "searchPlaceholder": "ค้นหาด้วย Settlement ID หรือชื่อผู้ใช้...",
+    "allStatus": "สถานะทั้งหมด",
+    "addSettlement": "เพิ่มรายการชำระเงิน",
+    "success": {
+      "added": "เพิ่มรายการชำระเงินสำเร็จ",
+      "processed": "การชำระเงินสำหรับ ${userName} ได้รับการดำเนินการแล้ว"
+    },
+    "colSettlementId": "รหัสการชำระเงิน",
+    "colRequestDate": "วันที่ร้องขอ",
+    "colUser": "ผู้ใช้",
+    "colBankDetails": "รายละเอียดธนาคาร",
+    "colAmount": "จำนวนเงิน",
+    "colStatus": "สถานะ",
+    "processPayout": "ดำเนินการจ่ายเงิน",
+    "viewSlip": "ดูสลิป",
+    "modal": {
+      "addTitle": "เพิ่มรายการชำระเงิน",
+      "userNameLabel": "รหัสผู้ใช้ / ชื่อ",
+      "userNamePlaceholder": "กรอกรหัสผู้ใช้หรือชื่อ",
+      "bankTypeLabel": "ประเภทธนาคาร",
+      "bankTypePlaceholder": "เลือกธนาคาร",
+      "accountNumberLabel": "เลขบัญชี",
+      "accountNumberPlaceholder": "กรอกเลขบัญชี",
+      "amountLabel": "จำนวนเงิน (฿)",
+      "amountPlaceholder": "กรอกจำนวนเงิน",
+      "remarkLabel": "หมายเหตุ",
+      "remarkPlaceholder": "หมายเหตุหรือบันทึกเพิ่มเติม",
+      "addSettlement": "เพิ่มรายการชำระเงิน",
+      "processPayoutTitle": "ดำเนินการจ่ายเงิน",
+      "settlementId": "รหัสการชำระเงิน",
+      "requestDate": "วันที่ร้องขอ",
+      "user": "ผู้ใช้",
+      "bankDetails": "รายละเอียดธนาคาร",
+      "amountToTransfer": "จำนวนเงินที่โอน",
+      "uploadSlipLabel": "อัปโหลดสลิปการโอนเงิน (หลักฐานการชำระ)",
+      "confirmTransfer": "ยืนยันการโอนและทำเครื่องหมายว่าดำเนินการแล้ว",
+      "detailsTitle": "รายละเอียดการชำระเงิน",
+      "amount": "จำนวนเงิน",
+      "status": "สถานะ",
+      "transferSlip": "สลิปการโอนเงิน"
+    },
+    "validation": {
+      "userNameRequired": "ต้องระบุชื่อผู้ใช้",
+      "bankTypeRequired": "ต้องเลือกธนาคาร",
+      "accountNumberRequired": "ต้องระบุเลขบัญชี",
+      "amountGreaterThanZero": "จำนวนเงินต้องมากกว่า 0"
+    }
+  },
+  "userManagement": {
+    "title": "จัดการผู้ใช้",
+    "searchPlaceholder": "ค้นหาผู้ใช้...",
+    "allStatus": "สถานะทั้งหมด",
+    "addUser": "เพิ่มผู้ใช้",
+    "tab": {
+      "userRole": "บทบาทผู้ใช้",
+      "username": "ชื่อผู้ใช้",
+      "activityLog": "บันทึกกิจกรรม"
+    },
+    "comingSoon": {
+      "userRole": "เนื้อหาบทบาทผู้ใช้จะเพิ่มเร็วๆ นี้",
+      "activityLog": "เนื้อหาบันทึกกิจกรรมจะเพิ่มเร็วๆ นี้",
+      "tenants": "การจัดการผู้เช่าและบทบาทจะเพิ่มเร็วๆ นี้",
+      "roles": "การจัดการบทบาทจะเพิ่มเร็วๆ นี้"
+    },
+    "success": {
+      "userAdded": "เพิ่มผู้ใช้สำเร็จ",
+      "userUpdated": "อัปเดตผู้ใช้สำเร็จ",
+      "userDeleted": "ลบผู้ใช้สำเร็จ"
+    },
+    "viewUser": "ดูผู้ใช้",
+    "colRole": "บทบาท",
+    "colFullName": "ชื่อ-นามสกุล",
+    "colUsername": "ชื่อผู้ใช้",
+    "colEmail": "อีเมล",
+    "colPhoneNumber": "เบอร์โทรศัพท์",
+    "colDateCreated": "วันที่สร้าง",
+    "colStatus": "สถานะ",
+    "roles": {
+      "superAdmin": "ผู้ดูแลระบบสูงสุด",
+      "admin": "ผู้ดูแลระบบ",
+      "manager": "ผู้จัดการ",
+      "staff": "เจ้าหน้าที่",
+      "viewer": "ผู้ดู"
+    },
+    "modal": {
+      "addTitle": "เพิ่มผู้ใช้",
+      "editTitle": "แก้ไขผู้ใช้",
+      "deleteTitle": "ลบผู้ใช้",
+      "roleLabel": "บทบาท",
+      "rolePlaceholder": "เลือกบทบาท",
+      "fullNameLabel": "ชื่อ-นามสกุล",
+      "fullNamePlaceholder": "กรอกชื่อ-นามสกุล",
+      "usernameLabel": "ชื่อผู้ใช้",
+      "usernamePlaceholder": "กรอกชื่อผู้ใช้",
+      "emailLabel": "อีเมล",
+      "emailPlaceholder": "กรอกอีเมล",
+      "phoneLabel": "เบอร์โทรศัพท์",
+      "phonePlaceholder": "กรอกเบอร์โทรศัพท์",
+      "statusLabel": "สถานะ",
+      "deleteConfirmation": "คุณแน่ใจหรือไม่ว่าต้องการลบผู้ใช้ \"${userName}\"?",
+      "assignTitle": "มอบหมายผู้เช่า",
+      "editAssignmentTitle": "แก้ไขการมอบหมาย",
+      "removeAssignmentTitle": "ลบการมอบหมาย",
+      "removeAssignmentConfirmation": "คุณแน่ใจหรือไม่ที่จะลบการมอบหมายของ \"{userName}\" ใน \"{tenantName}\"?",
+      "tenantLabel": "ผู้เช่า",
+      "tenantPlaceholder": "เลือกผู้เช่า",
+      "permissionsLabel": "สิทธิ์",
+      "assign": "มอบหมาย",
+      "passwordLabel": "รหัสผ่าน",
+      "passwordPlaceholder": "กรอกรหัสผ่าน"
+    },
+    "validation": {
+      "fullNameRequired": "ต้องระบุชื่อ-นามสกุล",
+      "usernameRequired": "ต้องระบุชื่อผู้ใช้",
+      "invalidEmail": "อีเมลไม่ถูกต้อง",
+      "roleRequired": "ต้องเลือกบทบาท",
+      "tenantRequired": "ต้องระบุผู้เช่า",
+      "duplicateAssignment": "ผู้ใช้ถูกมอบหมายให้ผู้เช่ารายนี้แล้ว",
+      "passwordRequired": "ต้องระบุรหัสผ่าน"
+    },
+    "colUserInfo": "ผู้ใช้",
+    "colTenants": "ผู้เช่าและบทบาท",
+    "colActions": "การดำเนินการ",
+    "colCreated": "วันที่สร้าง",
+    "badgeMore": "+{count} เพิ่มเติม",
+    "noAssignments": "ไม่มีการมอบหมาย",
+    "drawer": {
+      "editTitle": "แก้ไขผู้ใช้ — {name}",
+      "profileSection": "ข้อมูลส่วนตัว",
+      "assignmentsSection": "การมอบหมายผู้เช่าและบทบาท",
+      "addAssignmentSection": "มอบหมายให้ผู้เช่ารายใหม่",
+      "saveChanges": "บันทึกการเปลี่ยนแปลง"
+    },
+    "assignTenant": "มอบหมายผู้เช่า",
+    "tenantCount": "{count} ผู้เช่า",
+    "removeAssignment": "ลบ",
+    "addAssignment": "เพิ่มการมอบหมาย",
+    "error": {
+      "createFailed": "เพิ่มผู้ใช้ไม่สำเร็จ",
+      "updateFailed": "อัปเดตผู้ใช้ไม่สำเร็จ",
+      "deleteFailed": "ลบผู้ใช้ไม่สำเร็จ",
+      "loadFailed": "โหลดข้อมูลผู้ใช้ไม่สำเร็จ"
+    },
+    "pagination": {
+      "previous": "ก่อนหน้า",
+      "next": "ถัดไป",
+      "showing": "แสดง {start}-{end} จาก {total}",
+      "totalItems": "{total} ผู้ใช้"
+    }
+  }
+}
