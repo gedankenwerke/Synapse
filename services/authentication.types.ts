@@ -15,3 +15,7 @@ export type LoginRequestResponse = {
     token: string;
     user: LoginRequestUser;
 };
+
+export type RefreshTokenResponse = {
+    token: string;
+};

@@ -85,3 +85,22 @@ proxy.ts                  # Middleware (locale routing + auth guard)
 - **Auth**: `proxy.ts` checks `auth_token` cookie; unauthenticated users redirect to `/{locale}/`
 - **State**: Zustand store at `store/useAppStore.ts` — holds auth state (token, user, isAuthenticated)
 - **API**: Axios instance at `libs/axios.ts`, services under `services/`
+- **Refresh Token**: 401 responses auto-refresh via `GET /api/v1/token` and retry the original request (see `libs/axios.ts` interceptor)
+
+## API Integration Status
+
+| API | Endpoint(s) | Service | Page | Status |
+|---|---|---|---|---|
+| Auth | `POST /login`, `POST /register`, `POST /me`, `GET /token` | `authentication.ts` | Login page + auto-refresh | ✅ Done |
+| PayAgent | `POST /add-pay-agent` | `pay-agent.ts` | `/pay-agent` form | ✅ Done |
+| Settlement | `POST /settlement` | `settlement.ts` | `/customer-settlement` form | ✅ Done |
+| Bank Statement | `POST /search-bank-statement` | `account-statement.ts` | `/account-statement` | ✅ Done |
+| Net Balance | `POST /search-net-balance` | `net-balance.ts` | `/net-balance` | ✅ Done |
+| Transaction | `POST /search-transaction-history` | `transaction.ts` | `/deposits-withdrawals` | ✅ Done |
+| User | `GET/POST /users`, `GET/PUT/DELETE /users/{id}` | `user.ts` | `/user-management` | ✅ Done |
+| Policy | `GET /policies`, `POST /policies/reload` | `policy.ts` | — | 🔧 Service only |
+| Tenant | `GET/POST /tenants`, `GET/PUT/DELETE /tenants/{id}` | `tenant.ts` | — | 🔧 Service only |
+| TenantRole | `GET/POST /tenant-roles`, `GET/PUT/DELETE /tenant-roles/{id}` | `tenant-role.ts` | — | 🔧 Service only |
+| TenantPermission | `GET/POST /tenant-permissions`, `GET/PUT/DELETE /tenant-permissions/{id}` | `tenant-permission.ts` | — | 🔧 Service only |
+| TenantUser | `GET/POST /tenant-users`, `GET/PUT/DELETE /tenant-users/{id}` | `tenant-user.ts` | — | 🔧 Service only |
+| Info | `GET /health`, `GET /scalar` | — | — | ⬜ N/A |
