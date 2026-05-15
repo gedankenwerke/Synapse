@@ -62,6 +62,7 @@
     "transaction": "Transaction",
     "apiKeys": "API Keys",
     "customerSettlement": "Customer Settlement",
+    "payAgent": "Pay Agent",
     "userManagement": "User Management"
   },
   "breadcrumb": {
@@ -72,6 +73,7 @@
     "transaction": "Transaction",
     "apiKeys": "API Keys",
     "customerSettlement": "Customer Settlement",
+    "payAgent": "Pay Agent",
     "userManagement": "User Management",
     "transactions": "Transactions",
     "page": "Page"
@@ -284,7 +286,8 @@
     "addSettlement": "Add Settlement",
     "success": {
       "added": "Settlement added successfully",
-      "processed": "Payout for ${userName} has been processed"
+      "processed": "Payout for ${userName} has been processed",
+      "created": "Settlement processed successfully"
     },
     "colSettlementId": "Settlement ID",
     "colRequestDate": "Request Date",
@@ -320,11 +323,73 @@
       "status": "Status",
       "transferSlip": "Transfer Slip"
     },
+    "settlementType": {
+      "withdraw": "Withdraw",
+      "deposit": "Deposit"
+    },
+    "form": {
+      "clientidLabel": "Client ID",
+      "clientidPlaceholder": "Enter client ID",
+      "useridLabel": "User ID",
+      "useridPlaceholder": "Enter user ID",
+      "settlementTypeLabel": "Settlement Type",
+      "settlementTypePlaceholder": "Select type",
+      "ipLabel": "IP Address",
+      "ipPlaceholder": "Optional, e.g. 1.2.3.4",
+      "submit": "Process Settlement",
+      "processing": "Processing..."
+    },
+    "result": {
+      "successTitle": "Settlement Successful",
+      "failedTitle": "Settlement Failed",
+      "transactionId": "Transaction ID",
+      "date": "Date",
+      "bankStatus": "Bank Status",
+      "accountName": "Account Name",
+      "accountBank": "Account Bank",
+      "accountNo": "Account Number",
+      "amount": "Amount"
+    },
     "validation": {
       "userNameRequired": "User name is required",
+      "clientidRequired": "Client ID is required",
+      "useridRequired": "User ID is required",
       "bankTypeRequired": "Bank type is required",
       "accountNumberRequired": "Account number is required",
       "amountGreaterThanZero": "Amount must be greater than 0"
+    }
+  },
+  "payAgent": {
+    "title": "Pay Agent",
+    "success": {
+      "created": "Pay agent created successfully"
+    },
+    "form": {
+      "clientidaddLabel": "Client ID",
+      "clientidaddPlaceholder": "Enter client ID",
+      "parentclientLabel": "Parent Client",
+      "parentclientPlaceholder": "Enter parent client ID",
+      "secretLabel": "Secret",
+      "secretPlaceholder": "Enter secret key",
+      "aglevelLabel": "Agent Level",
+      "aglevelPlaceholder": "Optional, e.g. 1",
+      "submit": "Create Pay Agent",
+      "processing": "Creating..."
+    },
+    "result": {
+      "successTitle": "Pay Agent Created",
+      "clientId": "Client ID",
+      "adminId": "Admin ID",
+      "adminPassword": "Admin Password",
+      "apiEndpoint": "API Endpoint",
+      "key": "Key",
+      "callbackKey": "Callback Key",
+      "securityWarning": "Save these credentials securely. You will not be able to see the password again."
+    },
+    "validation": {
+      "clientidaddRequired": "Client ID is required",
+      "parentclientRequired": "Parent client is required",
+      "secretRequired": "Secret is required"
     }
   },
   "userManagement": {

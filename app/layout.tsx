@@ -49,7 +49,7 @@ export default function RootLayout({
       <head>
         <ColorSchemeScript defaultColorScheme="light" />
       </head>
-      <body className="min-h-full flex flex-col" suppressHydrationWarning>
+      <body className="mantine-body" suppressHydrationWarning>
         {children}
       </body>
     </html>
