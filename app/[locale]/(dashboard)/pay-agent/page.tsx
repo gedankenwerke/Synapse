@@ -4,43 +4,35 @@ import { useState, useRef } from "react";
 import { Container, Stack, Text, Transition } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import { useTranslations } from "next-intl";
-import { settlement } from "@/services/settlement";
-import type { SettlementResponse } from "@/services/settlement.types";
-import { SettlementForm } from "./_components/SettlementTab/SettlementForm";
-import { SettlementResult } from "./_components/SettlementTab/SettlementResult";
+import { payAgent } from "@/services/pay-agent";
+import type { PayAgentResponse } from "@/services/pay-agent.types";
+import { PayAgentForm } from "./_components/PayAgentTab/PayAgentForm";
+import { PayAgentResult } from "./_components/PayAgentTab/PayAgentResult";
 
-export default function CustomerSettlementPage() {
-  const t = useTranslations("settlement");
+export default function PayAgentPage() {
+  const t = useTranslations("payAgent");
   const tc = useTranslations("common");
 
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<SettlementResponse | null>(null);
+  const [result, setResult] = useState<PayAgentResponse | null>(null);
   const notifiedRef = useRef(false);
 
   const handleSubmit = async (values: {
-    clientid: string;
-    userid: string;
-    acctbank: string;
-    acctno: string;
-    amount: number;
-    settlement: number;
-    ip: string;
-    remark: string;
+    clientidadd: string;
+    parentclient: string;
+    secret: string;
+    aglevel: string;
   }) => {
     setLoading(true);
     setResult(null);
     notifiedRef.current = false;
 
     try {
-      const response = await settlement.create({
-        clientid: values.clientid,
-        userid: values.userid,
-        acctbank: values.acctbank,
-        acctno: values.acctno,
-        amount: values.amount,
-        settlement: values.settlement,
-        ip: values.ip || undefined,
-        remark: values.remark || undefined,
+      const response = await payAgent.create({
+        clientidadd: values.clientidadd,
+        parentclient: values.parentclient,
+        secret: values.secret,
+        aglevel: values.aglevel || undefined,
       });
       setResult(response);
       notifications.show({
@@ -69,13 +61,13 @@ export default function CustomerSettlementPage() {
       </Text>
 
       <Stack gap="xl">
-        <SettlementForm onSubmit={handleSubmit} loading={loading} />
+        <PayAgentForm onSubmit={handleSubmit} loading={loading} />
 
         <Transition mounted={!!result} transition="slide-up" duration={300}>
           {(styles) =>
             result ? (
               <div style={styles}>
-                <SettlementResult result={result} />
+                <PayAgentResult result={result} />
               </div>
             ) : (
               <div />
