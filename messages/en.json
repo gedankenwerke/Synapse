@@ -284,7 +284,8 @@
     "addSettlement": "Add Settlement",
     "success": {
       "added": "Settlement added successfully",
-      "processed": "Payout for ${userName} has been processed"
+      "processed": "Payout for ${userName} has been processed",
+      "created": "Settlement processed successfully"
     },
     "colSettlementId": "Settlement ID",
     "colRequestDate": "Request Date",
@@ -320,8 +321,37 @@
       "status": "Status",
       "transferSlip": "Transfer Slip"
     },
+    "settlementType": {
+      "withdraw": "Withdraw",
+      "deposit": "Deposit"
+    },
+    "form": {
+      "clientidLabel": "Client ID",
+      "clientidPlaceholder": "Enter client ID",
+      "useridLabel": "User ID",
+      "useridPlaceholder": "Enter user ID",
+      "settlementTypeLabel": "Settlement Type",
+      "settlementTypePlaceholder": "Select type",
+      "ipLabel": "IP Address",
+      "ipPlaceholder": "Optional, e.g. 1.2.3.4",
+      "submit": "Process Settlement",
+      "processing": "Processing..."
+    },
+    "result": {
+      "successTitle": "Settlement Successful",
+      "failedTitle": "Settlement Failed",
+      "transactionId": "Transaction ID",
+      "date": "Date",
+      "bankStatus": "Bank Status",
+      "accountName": "Account Name",
+      "accountBank": "Account Bank",
+      "accountNo": "Account Number",
+      "amount": "Amount"
+    },
     "validation": {
       "userNameRequired": "User name is required",
+      "clientidRequired": "Client ID is required",
+      "useridRequired": "User ID is required",
       "bankTypeRequired": "Bank type is required",
       "accountNumberRequired": "Account number is required",
       "amountGreaterThanZero": "Amount must be greater than 0"
