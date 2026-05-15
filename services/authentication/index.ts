@@ -1,5 +1,5 @@
 import httpClient from "@/libs/axios";
-import { LoginRequestBody, LoginRequestResponse } from './types';
+import { LoginRequestBody, LoginRequestResponse, RefreshTokenResponse } from './types';
 import { ResponseWrapper } from '@/types/response';
 
 export const authentication = {
@@ -11,5 +11,10 @@ export const authentication = {
     me: async (): Promise<boolean> => {
         await httpClient.post('/api/v1/me');
         return true;
-    }
-}
+    },
+
+    refresh: async (): Promise<RefreshTokenResponse> => {
+        const response = await httpClient.get<ResponseWrapper<RefreshTokenResponse>>('/api/v1/token');
+        return (response as unknown as ResponseWrapper<RefreshTokenResponse>).data;
+    },
+};

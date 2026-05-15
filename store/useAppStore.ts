@@ -18,6 +18,7 @@ interface AppState {
 
   setLogin: (token: string, user: LoginRequestUser) => void;
   setLogout: () => void;
+  updateToken: (token: string) => void;
 }
 
 const noopStorage = {
@@ -63,10 +64,19 @@ export const useAppStore = create<AppState>()(
         });
         set({ token, user, isAuthenticated: true, isSuperAdmin: user.isSuperAdmin });
       },
-
       setLogout: () => {
         Cookies.remove(COOKIE_NAME, { path: "/" });
         set({ token: null, user: null, isAuthenticated: false, isSuperAdmin: false });
+      },
+      updateToken: (token: string) => {
+        const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+        Cookies.set(COOKIE_NAME, token, {
+          path: "/",
+          expires: COOKIE_MAX_AGE_DAYS,
+          sameSite: "Strict",
+          ...(isSecure && { secure: true }),
+        });
+        set({ token });
       },
     }),
     {
@@ -86,3 +96,15 @@ export const useAppStore = create<AppState>()(
     }
   )
 );
+
+// Listen for token refresh events from the axios interceptor
+if (typeof window !== "undefined") {
+  window.addEventListener("token-refreshed", ((e: CustomEvent) => {
+    const newToken = e.detail as string;
+    useAppStore.getState().updateToken(newToken);
+  }) as EventListener);
+
+  window.addEventListener("token-refresh-failed", () => {
+    useAppStore.getState().setLogout();
+  });
+}
