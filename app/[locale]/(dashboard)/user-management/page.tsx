@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Container, Tabs, Stack, Text } from "@mantine/core";
+import { Container, Tabs, Stack, Text, Loader, Center } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useTranslations } from "next-intl";
 import { useDebouncedValue } from "@mantine/hooks";
+import { usePageGuard } from "@/hooks/usePageGuard";
 import { useAppStore } from "@/store/useAppStore";
 import { useUsersQuery } from "./hooks/useUsersQuery";
 import { useCreateUser, useUpdateUser, useDeleteUser } from "./hooks/useUserMutations";
@@ -27,13 +28,13 @@ import {
   DeleteConfirmModal,
 } from "./_components/UsersTab/UserModals";
 import type { UserFormValues } from "./_components/UsersTab/UserModals";
-import { TenantsToolbar } from "./_components/TenantsTab/TenantsToolbar";
-import { TenantsTable } from "./_components/TenantsTab/TenantsTable";
+import { PermissionsTab } from "./_components/PermissionsTab/PermissionsTab";
 import {
-  AddTenantModal,
-  EditTenantModal,
-  DeleteTenantModal,
-} from "./_components/TenantsTab/TenantsModals";
+  AddDepartmentModal,
+  EditDepartmentModal,
+  DeleteDepartmentModal,
+} from "./_components/PermissionsTab/DepartmentModals";
+import type { TenantFormValues } from "./_components/PermissionsTab/DepartmentModals";
 import { useTenantsQuery } from "./hooks/useTenantsQuery";
 import {
   useCreateTenant,
@@ -41,14 +42,12 @@ import {
   useDeleteTenant,
 } from "./hooks/useTenantMutations";
 import type { TenantCreateRequest, TenantUpdateRequest } from "@/services/tenant/types";
-import { RolesToolbar } from "./_components/RolesTab/RolesToolbar";
-import { RolesTable } from "./_components/RolesTab/RolesTable";
-import { EditRoleDrawer } from "./_components/RolesTab/EditRoleDrawer";
 import {
   AddRoleModal,
   EditRoleModal,
   DeleteRoleModal,
 } from "./_components/RolesTab/RolesModals";
+import type { RoleFormValues } from "./_components/RolesTab/RolesModals";
 import { useTenantRolesQuery } from "./hooks/useTenantRolesQuery";
 import {
   useCreateTenantRole,
@@ -66,6 +65,9 @@ import {
 export default function UserManagementPage() {
   const t = useTranslations("userManagement");
   const tc = useTranslations("common");
+  const { allowed, loading } = usePageGuard("ListUsers");
+  if (loading) return <Center mih="100vh"><Loader /></Center>;
+  if (!allowed) return null;
   const currentTenantId = useAppStore((s) => s.user?.tenant_id ?? "1");
 
   // ── Active tab ──
@@ -201,8 +203,6 @@ export default function UserManagementPage() {
   };
 
   // ── Tenants state ──
-  const [tenantSearch, setTenantSearch] = useState("");
-  const [debouncedTenantSearch] = useDebouncedValue(tenantSearch, 300);
   const [addTenantOpened, { open: openAddTenant, close: closeAddTenant }] = useDisclosure(false);
   const [editTenantOpened, { open: openEditTenant, close: closeEditTenant }] = useDisclosure(false);
   const [deleteTenantOpened, { open: openDeleteTenant, close: closeDeleteTenant }] = useDisclosure(false);
@@ -212,10 +212,6 @@ export default function UserManagementPage() {
   const createTenant = useCreateTenant();
   const updateTenant = useUpdateTenant();
   const deleteTenant = useDeleteTenant();
-
-  const filteredTenants = tenants.filter((t) =>
-    t.name.toLowerCase().includes(debouncedTenantSearch.toLowerCase())
-  );
 
   const handleAddTenant = (data: TenantCreateRequest) => {
     createTenant.mutate(data, {
@@ -263,14 +259,10 @@ export default function UserManagementPage() {
   };
 
   // ── Roles state ──
-  const [roleSearch, setRoleSearch] = useState("");
-  const [debouncedRoleSearch] = useDebouncedValue(roleSearch, 300);
   const [addRoleOpened, { open: openAddRole, close: closeAddRole }] = useDisclosure(false);
   const [editRoleOpened, { open: openEditRole, close: closeEditRole }] = useDisclosure(false);
   const [deleteRoleOpened, { open: openDeleteRole, close: closeDeleteRole }] = useDisclosure(false);
   const [selectedRole, setSelectedRole] = useState<TenantRole | null>(null);
-  const [roleDrawerOpened, { open: openRoleDrawer, close: closeRoleDrawer }] = useDisclosure(false);
-  const [drawerRole, setDrawerRole] = useState<TenantRole | null>(null);
 
   const { isLoading: rolesLoading } = useTenantRolesQuery();
   const createRole = useCreateTenantRole();
@@ -281,14 +273,6 @@ export default function UserManagementPage() {
   const { isLoading: permissionsLoading } = useTenantPermissionsQuery();
   const createPerm = useCreateTenantPermission();
   const deletePerm = useDeleteTenantPermission();
-
-  const rolePermissions = drawerRole
-    ? permissions.filter((p) => p.role_id === drawerRole.id)
-    : [];
-
-  const filteredRoles = roles.filter((r) =>
-    r.name.toLowerCase().includes(debouncedRoleSearch.toLowerCase())
-  );
 
   const handleAddRole = (data: TenantRoleCreateRequest) => {
     createRole.mutate(data, {
@@ -305,8 +289,7 @@ export default function UserManagementPage() {
 
   const handleEditRole = (role: TenantRole) => {
     setSelectedRole(role);
-    setDrawerRole(role);
-    openRoleDrawer();
+    openEditRole();
   };
 
   const handleUpdateRole = (data: TenantRoleUpdateRequest) => {
@@ -340,10 +323,9 @@ export default function UserManagementPage() {
   };
 
   const handleTogglePermission = (action: string, enabled: boolean) => {
-    if (!drawerRole) return;
     if (enabled) {
       createPerm.mutate(
-        { action, role_id: drawerRole.id },
+        { action, role_id: selectedRole?.id ?? "" },
         {
           onSuccess: () => {
             notifications.show({ title: tc("success"), message: t("roles.permissions.success.permissionAdded"), color: "green" });
@@ -355,7 +337,7 @@ export default function UserManagementPage() {
         }
       );
     } else {
-      const perm = permissions.find((p) => p.role_id === drawerRole.id && p.action === action);
+      const perm = permissions.find((p) => p.role_id === (selectedRole?.id ?? "") && p.action === action);
       if (!perm) return;
       deletePerm.mutate(perm.id, {
         onSuccess: () => {
@@ -384,8 +366,7 @@ export default function UserManagementPage() {
       <Tabs value={activeTab} onChange={setActiveTab}>
         <Tabs.List mb="md">
           <Tabs.Tab value="users">{t("tab.users")}</Tabs.Tab>
-          <Tabs.Tab value="tenants">{t("tab.tenants")}</Tabs.Tab>
-          <Tabs.Tab value="roles">{t("tab.roles")}</Tabs.Tab>
+          <Tabs.Tab value="permissions">{t("tab.roles")}</Tabs.Tab>
         </Tabs.List>
 
         <Tabs.Panel value="users">
@@ -400,38 +381,22 @@ export default function UserManagementPage() {
           </Stack>
         </Tabs.Panel>
 
-        <Tabs.Panel value="tenants">
-          <Stack gap="md">
-            <TenantsToolbar
-              searchValue={tenantSearch}
-              onSearchChange={setTenantSearch}
-              onAddTenant={openAddTenant}
-            />
-            <TenantsTable
-              data={filteredTenants}
-              tenants={tenants}
-              isLoading={tenantsLoading}
-              onEdit={handleEditTenant}
-              onDelete={handleDeleteTenant}
-            />
-          </Stack>
-        </Tabs.Panel>
-
-        <Tabs.Panel value="roles">
-          <Stack gap="md">
-            <RolesToolbar
-              searchValue={roleSearch}
-              onSearchChange={setRoleSearch}
-              onAddRole={openAddRole}
-            />
-            <RolesTable
-              data={filteredRoles}
-              tenants={tenants}
-              isLoading={rolesLoading}
-              onEdit={handleEditRole}
-              onDelete={handleDeleteRole}
-            />
-          </Stack>
+        <Tabs.Panel value="permissions">
+          <PermissionsTab
+            tenants={tenants}
+            roles={roles}
+            permissions={permissions}
+            isLoading={tenantsLoading || rolesLoading}
+            permissionsLoading={permissionsLoading}
+            isToggling={createPerm.isPending || deletePerm.isPending}
+            onTogglePermission={handleTogglePermission}
+            onAddDept={openAddTenant}
+            onEditDept={handleEditTenant}
+            onDeleteDept={handleDeleteTenant}
+            onAddRole={openAddRole}
+            onEditRole={handleEditRole}
+            onDeleteRole={handleDeleteRole}
+          />
         </Tabs.Panel>
       </Tabs>
 
@@ -440,27 +405,15 @@ export default function UserManagementPage() {
       <DeleteConfirmModal opened={deleteOpened} onClose={closeDelete} onConfirm={handleDeleteConfirm} userName={selectedUser?.username ?? ""} loading={deleteUser.isPending} />
       <EditUserDrawer opened={editOpened} onClose={closeEdit} user={selectedUser} onSave={handleSave} loading={updateUser.isPending} tenants={tenants} roles={roles} />
 
-      {/* Tenants modals */}
-      <AddTenantModal opened={addTenantOpened} onClose={closeAddTenant} onSave={handleAddTenant} loading={createTenant.isPending} tenants={tenants} />
-      <EditTenantModal opened={editTenantOpened} onClose={closeEditTenant} tenant={selectedTenant} onSave={handleUpdateTenant} loading={updateTenant.isPending} tenants={tenants} />
-      <DeleteTenantModal opened={deleteTenantOpened} onClose={closeDeleteTenant} onConfirm={handleDeleteTenantConfirm} tenantName={selectedTenant?.name ?? ""} loading={deleteTenant.isPending} />
+      {/* Department modals */}
+      <AddDepartmentModal opened={addTenantOpened} onClose={closeAddTenant} onSave={handleAddTenant} tenants={tenants} loading={createTenant.isPending} />
+      <EditDepartmentModal opened={editTenantOpened} onClose={closeEditTenant} tenant={selectedTenant} onSave={handleUpdateTenant} tenants={tenants} loading={updateTenant.isPending} />
+      <DeleteDepartmentModal opened={deleteTenantOpened} onClose={closeDeleteTenant} onConfirm={handleDeleteTenantConfirm} tenantName={selectedTenant?.name ?? ""} loading={deleteTenant.isPending} />
 
-      {/* Roles modals + drawer */}
+      {/* Role modals */}
       <AddRoleModal opened={addRoleOpened} onClose={closeAddRole} onSave={handleAddRole} loading={createRole.isPending} tenants={tenants} />
       <EditRoleModal opened={editRoleOpened} onClose={closeEditRole} role={selectedRole} onSave={handleUpdateRole} loading={updateRole.isPending} tenants={tenants} />
       <DeleteRoleModal opened={deleteRoleOpened} onClose={closeDeleteRole} onConfirm={handleDeleteRoleConfirm} roleName={selectedRole?.name ?? ""} loading={deleteRole.isPending} />
-
-      {/* Role permissions drawer */}
-      <EditRoleDrawer
-        opened={roleDrawerOpened}
-        onClose={closeRoleDrawer}
-        role={drawerRole}
-        permissions={rolePermissions}
-        tenants={tenants}
-        onToggle={handleTogglePermission}
-        isToggling={createPerm.isPending || deletePerm.isPending}
-        isLoading={permissionsLoading}
-      />
     </Container>
   );
 }
