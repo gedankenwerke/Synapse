@@ -39,21 +39,6 @@ function useContainerReady() {
 export function DashboardCharts({ areaData, donutData, isLoading }: DashboardChartsProps) {
   const t = useTranslations("dashboard");
   const { ref, ready } = useContainerReady();
-  const [donutSize, setDonutSize] = useState(220);
-  const donutRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = donutRef.current;
-    if (!el) return;
-    const update = () => {
-      const w = el.offsetWidth;
-      setDonutSize(Math.min(Math.max(w - 48, 180), 300));
-    };
-    update();
-    const observer = new ResizeObserver(update);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   if (isLoading) {
     return (
@@ -100,7 +85,7 @@ export function DashboardCharts({ areaData, donutData, isLoading }: DashboardCha
           )
         )}
       </Paper>
-      <Paper ref={donutRef} shadow="sm" p="md" radius="md">
+      <Paper shadow="sm" p="md" radius="md">
         <Text fw={600} mb="sm">
           {t("charts.transactionStatus")}
         </Text>
@@ -111,10 +96,9 @@ export function DashboardCharts({ areaData, donutData, isLoading }: DashboardCha
         ) : (
           <DonutChart
             data={donutData}
-            size={donutSize}
+            size={220}
             thickness={20}
             withLabels
-            withLabelsLine
             labelsType="percent"
             withTooltip
           />
