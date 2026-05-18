@@ -52,6 +52,7 @@ export default function LoginPage() {
       setLogin(response.data.token, response.data.user);
       await usePermissionStore.getState().fetchPolicies();
       await usePermissionStore.getState().fetchUserPermissions();
+
       router.push("/dashboard");
     } catch (err: any) {
       const errorMessage = err?.message || t("error.loginFailed");
