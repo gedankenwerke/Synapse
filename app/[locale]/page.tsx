@@ -18,12 +18,14 @@ import { useState } from "react";
 import { authentication } from "@/services/authentication";
 import { useAppStore } from "@/store/useAppStore";
 import { usePermissionStore } from "@/store/usePermissionStore";
+import { useQueryClient } from "@tanstack/react-query";
 import { IconAlertCircle } from "@tabler/icons-react";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function LoginPage() {
   const router = useRouter();
   const { setLogin } = useAppStore();
+  const queryClient = useQueryClient();
 
   const t = useTranslations("login");
   const [username, setUsername] = useState("");
@@ -46,6 +48,7 @@ export default function LoginPage() {
         password,
       });
 
+      queryClient.clear();
       setLogin(response.data.token, response.data.user);
       await usePermissionStore.getState().fetchPolicies();
       await usePermissionStore.getState().fetchUserPermissions();

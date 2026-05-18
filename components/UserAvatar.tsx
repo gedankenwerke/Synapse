@@ -10,12 +10,13 @@ import {
 } from "@tabler/icons-react";
 import { useAppStore } from "@/store/useAppStore";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { tenant } from "@/services/tenant";
 
 export function UserAvatar() {
   const router = useRouter();
   const { user, setLogout } = useAppStore();
+  const queryClient = useQueryClient();
   const t = useTranslations("user");
 
   const { data: tenants = [] } = useQuery({
@@ -26,6 +27,7 @@ export function UserAvatar() {
   });
 
   const handleLogout = () => {
+    queryClient.clear();
     setLogout();
     router.push("/");
   };
@@ -35,7 +37,7 @@ export function UserAvatar() {
     : "U";
 
   const tenantName = user?.tenant_id
-    ? tenants.find((t) => t.id === user.tenant_id)?.name
+    ? tenants.find((t) => t.ID === user.tenant_id)?.Name
     : undefined;
 
   const roleLabel = user?.isSuperAdmin

@@ -8,6 +8,7 @@ import { useTranslations } from "next-intl";
 import { useDebouncedValue } from "@mantine/hooks";
 import { usePageGuard } from "@/hooks/usePageGuard";
 import { useAppStore } from "@/store/useAppStore";
+import { getVisibleTenantIds } from "@/services/tenant/helpers";
 import { useUsersQuery } from "./hooks/useUsersQuery";
 import { useCreateUser, useUpdateUser, useDeleteUser } from "./hooks/useUserMutations";
 import { mapApiUserToUserData } from "@/services/user/types";
@@ -30,11 +31,11 @@ import {
 import type { UserFormValues } from "./_components/UsersTab/UserModals";
 import { PermissionsTab } from "./_components/PermissionsTab/PermissionsTab";
 import {
-  AddDepartmentModal,
-  EditDepartmentModal,
-  DeleteDepartmentModal,
-} from "./_components/PermissionsTab/DepartmentModals";
-import type { TenantFormValues } from "./_components/PermissionsTab/DepartmentModals";
+  AddTenantModal,
+  EditTenantModal,
+  DeleteTenantModal,
+} from "./_components/PermissionsTab/TenantModals";
+import type { TenantFormValues } from "./_components/PermissionsTab/TenantModals";
 import { useTenantsQuery } from "./hooks/useTenantsQuery";
 import {
   useCreateTenant,
@@ -68,7 +69,8 @@ export default function UserManagementPage() {
   const { allowed, loading } = usePageGuard("ListUsers");
   if (loading) return <Center mih="100vh"><Loader /></Center>;
   if (!allowed) return null;
-  const currentTenantId = useAppStore((s) => s.user?.tenant_id ?? "1");
+  const currentTenantId = useAppStore((s) => s.user?.tenant_id ?? "");
+  const isSuperAdmin = useAppStore((s) => s.isSuperAdmin);
 
   // ── Active tab ──
   const [activeTab, setActiveTab] = useState<string | null>("users");
@@ -102,25 +104,35 @@ export default function UserManagementPage() {
   const { data: roles = [] } = useTenantRolesQuery();
   const { data: permissions = [] } = useTenantPermissionsQuery();
 
-  const tenantMap = new Map(tenants.map((t) => [t.id, t.name]));
-  const roleMap = new Map(roles.map((r) => [r.id, r.name]));
+  // ── Tenant-scoped filtering ──
+  const visibleTenantIds = getVisibleTenantIds(currentTenantId, tenants, isSuperAdmin);
+  const scopedTenants = isSuperAdmin ? tenants : tenants.filter((t) => visibleTenantIds.includes(t.ID));
+  const scopedRoles = isSuperAdmin ? roles : roles.filter((r) => visibleTenantIds.includes(r.TenantID));
+  const scopedPermissions = isSuperAdmin ? permissions : permissions.filter((p) => {
+    const role = roles.find((r) => r.ID === p.RoleID);
+    return role ? visibleTenantIds.includes(role.TenantID) : false;
+  });
+  const scopedTenantUsers = isSuperAdmin ? tenantUsers : tenantUsers.filter((tu) => visibleTenantIds.includes(tu.TenantID));
+
+  const tenantMap = new Map(scopedTenants.map((t) => [t.ID, t.Name]));
+  const roleMap = new Map(scopedRoles.map((r) => [r.ID, r.Name]));
   const permissionMap = new Map<string, string[]>();
-  for (const p of permissions) {
-    const list = permissionMap.get(p.role_id) ?? [];
-    list.push(p.action);
-    permissionMap.set(p.role_id, list);
+  for (const p of scopedPermissions) {
+    const list = permissionMap.get(p.RoleID) ?? [];
+    list.push(p.Action);
+    permissionMap.set(p.RoleID, list);
   }
 
   const users: UserData[] = (usersData?.pages.flatMap((p) => p.items.map(mapApiUserToUserData)) ?? []).map((user) => {
-    const assignments: AssignmentData[] = tenantUsers
-      .filter((tu) => tu.user_id === user.id)
+    const assignments: AssignmentData[] = scopedTenantUsers
+      .filter((tu) => tu.UserID === user.id)
       .map((tu) => ({
-        id: tu.id,
-        tenantId: tu.tenant_id,
-        tenantName: tenantMap.get(tu.tenant_id) ?? "—",
-        roleId: tu.tenant_role_id,
-        roleName: roleMap.get(tu.tenant_role_id) ?? "—",
-        permissions: permissionMap.get(tu.tenant_role_id) ?? [],
+        id: tu.ID,
+        tenantId: tu.TenantID,
+        tenantName: tenantMap.get(tu.TenantID) ?? "—",
+        roleId: tu.TenantRoleID,
+        roleName: roleMap.get(tu.TenantRoleID) ?? "—",
+        permissions: permissionMap.get(tu.TenantRoleID) ?? [],
       }));
     return { ...user, assignments };
   });
@@ -230,7 +242,7 @@ export default function UserManagementPage() {
 
   const handleUpdateTenant = (data: TenantUpdateRequest) => {
     if (!selectedTenant) return;
-    updateTenant.mutate({ id: selectedTenant.id, data }, {
+    updateTenant.mutate({ id: selectedTenant.ID, data }, {
       onSuccess: () => {
         closeEditTenant();
         notifications.show({ title: tc("success"), message: t("tenants.success.updated"), color: "green" });
@@ -246,7 +258,7 @@ export default function UserManagementPage() {
 
   const handleDeleteTenantConfirm = () => {
     if (!selectedTenant) return;
-    deleteTenant.mutate(selectedTenant.id, {
+    deleteTenant.mutate(selectedTenant.ID, {
       onSuccess: () => {
         closeDeleteTenant();
         notifications.show({ title: tc("success"), message: t("tenants.success.deleted"), color: "green" });
@@ -294,7 +306,7 @@ export default function UserManagementPage() {
 
   const handleUpdateRole = (data: TenantRoleUpdateRequest) => {
     if (!selectedRole) return;
-    updateRole.mutate({ id: selectedRole.id, data }, {
+    updateRole.mutate({ id: selectedRole.ID, data }, {
       onSuccess: () => {
         closeEditRole();
         notifications.show({ title: tc("success"), message: t("roles.success.updated"), color: "green" });
@@ -310,7 +322,7 @@ export default function UserManagementPage() {
 
   const handleDeleteRoleConfirm = () => {
     if (!selectedRole) return;
-    deleteRole.mutate(selectedRole.id, {
+    deleteRole.mutate(selectedRole.ID, {
       onSuccess: () => {
         closeDeleteRole();
         notifications.show({ title: tc("success"), message: t("roles.success.deleted"), color: "green" });
@@ -325,7 +337,7 @@ export default function UserManagementPage() {
   const handleTogglePermission = (action: string, enabled: boolean) => {
     if (enabled) {
       createPerm.mutate(
-        { action, role_id: selectedRole?.id ?? "" },
+        { action, role_id: selectedRole?.ID ?? "" },
         {
           onSuccess: () => {
             notifications.show({ title: tc("success"), message: t("roles.permissions.success.permissionAdded"), color: "green" });
@@ -337,9 +349,9 @@ export default function UserManagementPage() {
         }
       );
     } else {
-      const perm = permissions.find((p) => p.role_id === (selectedRole?.id ?? "") && p.action === action);
+      const perm = permissions.find((p) => p.RoleID === (selectedRole?.ID ?? "") && p.Action === action);
       if (!perm) return;
-      deletePerm.mutate(perm.id, {
+      deletePerm.mutate(perm.ID, {
         onSuccess: () => {
           notifications.show({ title: tc("success"), message: t("roles.permissions.success.permissionRemoved"), color: "green" });
         },
@@ -383,9 +395,9 @@ export default function UserManagementPage() {
 
         <Tabs.Panel value="permissions">
           <PermissionsTab
-            tenants={tenants}
-            roles={roles}
-            permissions={permissions}
+            tenants={scopedTenants}
+            roles={scopedRoles}
+            permissions={scopedPermissions}
             isLoading={tenantsLoading || rolesLoading}
             permissionsLoading={permissionsLoading}
             isToggling={createPerm.isPending || deletePerm.isPending}
@@ -393,6 +405,9 @@ export default function UserManagementPage() {
             onAddDept={openAddTenant}
             onEditDept={handleEditTenant}
             onDeleteDept={handleDeleteTenant}
+            onAddAgent={openAddTenant}
+            onEditAgent={handleEditTenant}
+            onDeleteAgent={handleDeleteTenant}
             onAddRole={openAddRole}
             onEditRole={handleEditRole}
             onDeleteRole={handleDeleteRole}
@@ -403,17 +418,17 @@ export default function UserManagementPage() {
       {/* Users modals */}
       <AddUserModal opened={addOpened} onClose={closeAdd} onSave={handleAddUser} loading={createUser.isPending} />
       <DeleteConfirmModal opened={deleteOpened} onClose={closeDelete} onConfirm={handleDeleteConfirm} userName={selectedUser?.username ?? ""} loading={deleteUser.isPending} />
-      <EditUserDrawer opened={editOpened} onClose={closeEdit} user={selectedUser} onSave={handleSave} loading={updateUser.isPending} tenants={tenants} roles={roles} />
+      <EditUserDrawer opened={editOpened} onClose={closeEdit} user={selectedUser} onSave={handleSave} loading={updateUser.isPending} tenants={scopedTenants} roles={scopedRoles} />
 
-      {/* Department modals */}
-      <AddDepartmentModal opened={addTenantOpened} onClose={closeAddTenant} onSave={handleAddTenant} tenants={tenants} loading={createTenant.isPending} />
-      <EditDepartmentModal opened={editTenantOpened} onClose={closeEditTenant} tenant={selectedTenant} onSave={handleUpdateTenant} tenants={tenants} loading={updateTenant.isPending} />
-      <DeleteDepartmentModal opened={deleteTenantOpened} onClose={closeDeleteTenant} onConfirm={handleDeleteTenantConfirm} tenantName={selectedTenant?.name ?? ""} loading={deleteTenant.isPending} />
+      {/* Tenant modals */}
+      <AddTenantModal opened={addTenantOpened} onClose={closeAddTenant} onSave={handleAddTenant} tenants={scopedTenants} loading={createTenant.isPending} />
+      <EditTenantModal opened={editTenantOpened} onClose={closeEditTenant} tenant={selectedTenant} onSave={handleUpdateTenant} tenants={scopedTenants} loading={updateTenant.isPending} />
+      <DeleteTenantModal opened={deleteTenantOpened} onClose={closeDeleteTenant} onConfirm={handleDeleteTenantConfirm} tenantName={selectedTenant?.Name ?? ""} loading={deleteTenant.isPending} />
 
       {/* Role modals */}
-      <AddRoleModal opened={addRoleOpened} onClose={closeAddRole} onSave={handleAddRole} loading={createRole.isPending} tenants={tenants} />
-      <EditRoleModal opened={editRoleOpened} onClose={closeEditRole} role={selectedRole} onSave={handleUpdateRole} loading={updateRole.isPending} tenants={tenants} />
-      <DeleteRoleModal opened={deleteRoleOpened} onClose={closeDeleteRole} onConfirm={handleDeleteRoleConfirm} roleName={selectedRole?.name ?? ""} loading={deleteRole.isPending} />
+      <AddRoleModal opened={addRoleOpened} onClose={closeAddRole} onSave={handleAddRole} loading={createRole.isPending} tenants={scopedTenants} />
+      <EditRoleModal opened={editRoleOpened} onClose={closeEditRole} role={selectedRole} onSave={handleUpdateRole} loading={updateRole.isPending} tenants={scopedTenants} />
+      <DeleteRoleModal opened={deleteRoleOpened} onClose={closeDeleteRole} onConfirm={handleDeleteRoleConfirm} roleName={selectedRole?.Name ?? ""} loading={deleteRole.isPending} />
     </Container>
   );
 }

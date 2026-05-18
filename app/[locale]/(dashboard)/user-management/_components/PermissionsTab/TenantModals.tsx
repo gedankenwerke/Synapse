@@ -22,7 +22,7 @@ const defaultFormValues: TenantFormValues = {
   parent_id: "",
 };
 
-interface AddDepartmentModalProps {
+interface AddTenantModalProps {
   opened: boolean;
   onClose: () => void;
   onSave: (data: TenantFormValues) => void;
@@ -30,13 +30,13 @@ interface AddDepartmentModalProps {
   loading?: boolean;
 }
 
-export function AddDepartmentModal({
+export function AddTenantModal({
   opened,
   onClose,
   onSave,
   tenants,
   loading,
-}: AddDepartmentModalProps) {
+}: AddTenantModalProps) {
   const t = useTranslations("userManagement.tenants");
   const tc = useTranslations("common");
 
@@ -51,8 +51,8 @@ export function AddDepartmentModal({
   });
 
   const parentOptions = tenants.map((tenant) => ({
-    value: tenant.id,
-    label: tenant.name,
+    value: tenant.ID,
+    label: tenant.Name,
   }));
 
   const handleSubmit = (values: TenantFormValues) => {
@@ -88,7 +88,7 @@ export function AddDepartmentModal({
   );
 }
 
-interface EditDepartmentModalProps {
+interface EditTenantModalProps {
   opened: boolean;
   onClose: () => void;
   onSave: (data: TenantFormValues) => void;
@@ -97,21 +97,21 @@ interface EditDepartmentModalProps {
   loading?: boolean;
 }
 
-export function EditDepartmentModal({
+export function EditTenantModal({
   opened,
   onClose,
   onSave,
   tenant,
   tenants,
   loading,
-}: EditDepartmentModalProps) {
+}: EditTenantModalProps) {
   const t = useTranslations("userManagement.tenants");
   const tc = useTranslations("common");
 
   const form = useForm<TenantFormValues>({
     initialValues: {
-      name: tenant?.name ?? "",
-      parent_id: tenant?.parent_id ?? "",
+      name: tenant?.Name ?? "",
+      parent_id: tenant?.ParentID ?? "",
     },
     validate: {
       name: (val) =>
@@ -122,8 +122,8 @@ export function EditDepartmentModal({
   });
 
   const parentOptions = tenants.map((t) => ({
-    value: t.id,
-    label: t.name,
+    value: t.ID,
+    label: t.Name,
   }));
 
   const handleSubmit = (values: TenantFormValues) => {
@@ -158,7 +158,7 @@ export function EditDepartmentModal({
   );
 }
 
-interface DeleteDepartmentModalProps {
+interface DeleteTenantModalProps {
   opened: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -166,13 +166,13 @@ interface DeleteDepartmentModalProps {
   loading?: boolean;
 }
 
-export function DeleteDepartmentModal({
+export function DeleteTenantModal({
   opened,
   onClose,
   onConfirm,
   tenantName,
   loading,
-}: DeleteDepartmentModalProps) {
+}: DeleteTenantModalProps) {
   const t = useTranslations("userManagement.tenants");
   const tc = useTranslations("common");
 
