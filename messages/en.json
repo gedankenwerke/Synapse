@@ -61,9 +61,11 @@
     "netBalance": "Net Balance",
     "transaction": "Transaction",
     "apiKeys": "API Keys",
-    "customerSettlement": "Customer Settlement",
+    "settlement": "Settlement",
     "payAgent": "Pay Agent",
-    "userManagement": "User Management"
+    "userManagement": "User Management",
+    "tenants": "Tenants",
+    "policies": "Policies"
   },
   "breadcrumb": {
     "home": "Home",
@@ -72,9 +74,11 @@
     "netBalance": "Net Balance",
     "transaction": "Transaction",
     "apiKeys": "API Keys",
-    "customerSettlement": "Customer Settlement",
+    "settlement": "Settlement",
     "payAgent": "Pay Agent",
     "userManagement": "User Management",
+    "tenants": "Tenants",
+    "policies": "Policies",
     "transactions": "Transactions",
     "page": "Page"
   },
