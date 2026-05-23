@@ -1,0 +1,207 @@
+Backend API Change Request — User Role Field
+=============================================
+Date: 2026-05-23
+From: Frontend Team
+Priority: Required for 3-layer architecture implementation
+
+PROBLEM
+-------
+The frontend is implementing a 3-layer routing architecture (Superadmin / Senior / User).
+Each user MUST be assigned to exactly one layer, and the frontend needs to know which
+layer a user belongs to at login time to route them to the correct URL segment:
+
+  /superadmin/*  →  System-level admin (God Mode, all tenants)
+  /senior/*      →  Tenant admin (manage their own tenant's users/roles)
+  /user/*        →  Standard operator (day-to-day wallet operations, RBAC-restricted)
+
+Currently the only way to identify a user's layer is:
+  - Superadmin: tenant_id === "1" (hardcoded convention)
+  - Senior: No way to detect (frontend guesses by convention)
+  - User: Default fallback (anyone who isn't superadmin)
+
+This is fragile and cannot reliably distinguish Senior from User.
+
+
+REQUESTED CHANGES
+-----------------
+
+1. ADD `role` FIELD TO USER MODEL
+
+   The User entity needs a new field:
+
+     role: string   // One of: "superadmin", "senior", "user"
+
+   This should be stored in the database and set when creating a user.
+   Default value for new users: "user"
+
+
+2. ADD `role` TO /login RESPONSE
+
+   Current response:
+   {
+     "code": 200,
+     "data": {
+       "user": {
+         "id": "2054037179725778944",
+         "username": "string",
+         "tenant_id": "1",
+         "created_at": "2026-05-12T03:13:20Z",
+         "updated_at": "2026-05-16T08:44:00Z"
+       },
+       "access_token": "eyJ...",
+       "refresh_token": "eyJ...",
+       "token_type": "Bearer",
+       "expires_in": 900
+     }
+   }
+
+   Requested response (add role to user object):
+   {
+     "code": 200,
+     "data": {
+       "user": {
+         "id": "2054037179725778944",
+         "username": "string",
+         "tenant_id": "1",
+         "role": "superadmin",       ← NEW FIELD
+         "created_at": "2026-05-12T03:13:20Z",
+         "updated_at": "2026-05-16T08:44:00Z"
+       },
+       "access_token": "eyJ...",
+       "refresh_token": "eyJ...",
+       "token_type": "Bearer",
+       "expires_in": 900
+     }
+   }
+
+
+3. ADD `role` TO /me RESPONSE
+
+   Current response:
+   {
+     "code": 200,
+     "data": {
+       "id": "2054037179725778944",
+       "username": "string",
+       "tenant_id": "1",
+       "created_at": "2026-05-12T03:13:20Z",
+       "updated_at": "2026-05-16T08:44:00Z"
+     }
+   }
+
+   Requested response (add role):
+   {
+     "code": 200,
+     "data": {
+       "id": "2054037179725778944",
+       "username": "string",
+       "tenant_id": "1",
+       "role": "superadmin",         ← NEW FIELD
+       "created_at": "2026-05-12T03:13:20Z",
+       "updated_at": "2026-05-16T08:44:00Z"
+     }
+   }
+
+
+4. ADD `role` TO /users AND /users/{id} RESPONSES
+
+   The user list and get-by-id endpoints should also return the role field
+   so the User Management pages can display and edit it.
+
+   GET /users response:
+   {
+     "code": 200,
+     "data": {
+       "Items": [
+         {
+           "ID": "...",
+           "Username": "...",
+           "TenantID": "...",
+           "Role": "user",            ← NEW FIELD (PascalCase to match existing convention)
+           "CreatedAt": "...",
+           "UpdatedAt": "..."
+         }
+       ]
+     }
+   }
+
+
+5. ADD `role` TO POST /users REQUEST
+
+   When creating a user, the role should be specifiable:
+
+   POST /users request:
+   {
+     "Username": "john",
+     "Password": "secret",
+     "TenantID": "2",
+     "Role": "user"                 ← NEW FIELD
+   }
+
+
+6. ADD `role` TO PUT /users/{id} REQUEST
+
+   When updating a user, the role should be changeable:
+
+   PUT /users/{id} request:
+   {
+     "Username": "john",
+     "Role": "senior"               ← NEW FIELD (allows role promotion/demotion)
+   }
+
+
+ROLE VALUES & BUSINESS RULES
+-----------------------------
+
+  "superadmin"  →  System-level admin. tenant_id MUST be "1".
+                   Only superadmins can create other superadmins.
+                   Can access data across ALL tenants.
+
+  "senior"      →  Tenant admin. Can manage users, roles, and permissions
+                   WITHIN their own tenant_id only.
+                   Cannot access /superadmin routes.
+                   Can view all financial data for their tenant.
+
+  "user"        →  Standard operator. Access restricted by RBAC actions
+                   assigned to their TenantRole.
+                   Cannot access /senior or /superadmin routes.
+
+VALIDATION RULES (suggested):
+  - A user with role "superadmin" MUST have tenant_id = "1"
+  - A user with role "senior" or "user" MUST have tenant_id != "1"
+  - Only a superadmin can change another user's role
+  - A senior can create "user" and "senior" users within their own tenant
+  - A senior CANNOT create "superadmin" users
+  - Changing a user's role from "user" to "senior" (or vice versa) should
+    be allowed only by superadmin or a senior of the same tenant
+
+
+FRONTEND IMPACT
+---------------
+Once the backend returns `role`, the frontend will:
+
+  1. Store role in the auth cookie (alongside access_token)
+  2. Read role in Next.js middleware to enforce route guards:
+     - role === "superadmin" → only /superadmin/* accessible
+     - role === "senior" → only /senior/* accessible
+     - role === "user" → only /user/* accessible
+     - No valid role → redirect to /login
+  3. Show layer-appropriate sidebar navigation
+  4. Replace the hardcoded isSuperAdmin() = (tenant_id === "1") check
+  5. Use role for UI rendering decisions (hide/show admin features)
+
+The frontend CANNOT proceed with the 3-layer routing implementation
+until the backend returns the role field in /login and /me responses.
+
+
+QUESTIONS FOR BACKEND TEAM
+--------------------------
+1. Is the role field naming acceptable? (snake_case "role" in login/me,
+   PascalCase "Role" in /users — matching existing naming conventions)
+2. Should role be an enum in the DB or a simple string field?
+3. Are the validation rules above acceptable, or do you have different
+   requirements for who can assign which roles?
+4. Is there a migration plan needed for existing users? (All existing
+   non-superadmin users would default to "user" unless manually upgraded)
+5. Do you need a separate API endpoint to change a user's role, or is
+   including it in the PUT /users/{id} update sufficient?
