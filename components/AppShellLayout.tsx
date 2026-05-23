@@ -1,10 +1,16 @@
 "use client";
 
-import { AppShell, ScrollArea, Text } from "@mantine/core";
+import { AppShell, ScrollArea } from "@mantine/core";
 import { HeaderBar } from "@/components/HeaderBar";
 import { SidebarNav } from "@/components/SidebarNav";
+import type { NavItem } from "./sidebars/types";
 
-export default function AppShellLayout({ children }: { children: React.ReactNode }) {
+interface AppShellLayoutProps {
+  children: React.ReactNode;
+  navItems: NavItem[];
+}
+
+export default function AppShellLayout({ children, navItems }: AppShellLayoutProps) {
   return (
     <AppShell
       header={{ height: 64 }}
@@ -20,10 +26,9 @@ export default function AppShellLayout({ children }: { children: React.ReactNode
       </AppShell.Header>
 
       <AppShell.Navbar p="xs">
-
         <AppShell.Section grow mt="xs">
           <ScrollArea>
-            <SidebarNav />
+            <SidebarNav navItems={navItems} />
           </ScrollArea>
         </AppShell.Section>
       </AppShell.Navbar>
