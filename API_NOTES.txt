@@ -1,8 +1,7 @@
-Synapse API Notes — Tested 2026-05-21
-========================================
+Synapse API Notes — Tested 2026-05-21, Usage Audit 2026-05-23
+==============================================================
 
 Base URL: http://192.168.144.74:18080/api/v1
-Test credentials: username=string, password=string
 
 NAMING CONVENTION SUMMARY
 --------------------------
@@ -272,3 +271,190 @@ FRONTEND CHANGES MADE (2026-05-20/21)
    - Bank API endpoints return 500 from backend (not a frontend issue)
    - /tenant-permissions endpoint returns 404 (not implemented on backend)
    - /users response includes Password field (security concern — backend should not send this)
+
+
+API USAGE AUDIT — 2026-05-23
+============================
+
+Status codes: ✓ USED (consumed by page/hook/store)
+              ⚠ DEFINED (service exists, no consumer calls it)
+              ✗ NOT USED (no reference in codebase at all)
+
+PayAgent
+--------
+POST /add-pay-agent                              ✓ USED
+  Service:  services/pay-agent/index.ts
+  Consumer:  app/[locale]/(dashboard)/pay-agent/page.tsx
+
+Policy
+------
+GET  /policies                                   ✓ USED
+  Service:  services/policy/index.ts
+  Consumer:  store/usePermissionStore.ts
+
+POST /policies/reload                            ⚠ DEFINED, NOT CONSUMED
+  Service:  services/policy/index.ts (policy.reload() defined)
+  No page, hook, or store calls this method.
+
+Settlement
+----------
+POST /settlement                                 ✓ USED
+  Service:  services/settlement/index.ts
+  Consumer:  app/[locale]/(dashboard)/customer-settlement/page.tsx
+
+Info
+----
+GET  /health                                     ✗ NOT USED — no reference in codebase
+GET  /scalar                                     ✗ NOT USED — no reference in codebase
+
+Auth
+----
+POST /login                                      ✓ USED
+  Service:  services/authentication/index.ts
+  Consumer:  app/[locale]/page.tsx, libs/axios.ts (interceptor)
+
+POST /me                                         ✓ USED
+  Service:  services/authentication/index.ts
+  Consumer:  app/[locale]/(dashboard)/layout.tsx, libs/axios.ts (interceptor)
+
+GET  /token                                      ⚠ DEFINED, NOT CONSUMED
+  Service:  services/authentication/index.ts (rotateToken() defined)
+  No component or hook calls rotateToken() directly.
+
+POST /token/refresh                              ✓ USED
+  Service:  services/authentication/index.ts
+  Consumer:  libs/axios.ts (401 interceptor refresh flow)
+
+Bank
+----
+POST /search-bank-statement                      ✓ USED
+  Service:  services/account-statement/index.ts
+  Consumer:  account-statement/hooks/useStatementQuery.ts
+
+POST /search-net-balance                         ✓ USED
+  Service:  services/net-balance/index.ts
+  Consumer:  net-balance/hooks/useNetBalanceQuery.ts, dashboard/hooks/useDashboardData.ts
+
+POST /search-transaction-history                 ✓ USED
+  Service:  services/transaction/index.ts
+  Consumer:  deposits-withdrawals/hooks/useTransactionQuery.ts, dashboard/hooks/useDashboardData.ts
+
+TenantRole
+----------
+GET    /tenant-roles                              ✓ USED
+  Service:  services/tenant-role/index.ts
+  Consumer:  user-management/hooks/useTenantRolesQuery.ts
+
+POST   /tenant-roles                              ✓ USED
+  Service:  services/tenant-role/index.ts
+  Consumer:  user-management/hooks/useTenantRoleMutations.ts
+
+GET    /tenant-roles/{id}                        ⚠ DEFINED, NOT CONSUMED
+  Service:  services/tenant-role/index.ts (tenantRole.get() defined)
+  No consumer calls tenantRole.get() directly.
+
+PUT    /tenant-roles/{id}                         ✓ USED
+  Service:  services/tenant-role/index.ts
+  Consumer:  user-management/hooks/useTenantRoleMutations.ts
+
+DELETE /tenant-roles/{id}                         ✓ USED
+  Service:  services/tenant-role/index.ts
+  Consumer:  user-management/hooks/useTenantRoleMutations.ts
+
+POST   /tenant-roles/{id}/permissions             ✓ USED
+  Service:  services/tenant-permission/index.ts
+  Consumer:  useTenantPermissionsQuery.ts, useTenantPermissionMutations.ts, store/usePermissionStore.ts
+
+DELETE /tenant-roles/{id}/permissions             ✓ USED
+  Service:  services/tenant-permission/index.ts
+  Consumer:  useTenantPermissionMutations.ts, store/usePermissionStore.ts
+
+TenantUser
+----------
+GET    /tenant-users                              ✓ USED
+  Service:  services/tenant-user/index.ts
+  Consumer:  useTenantUsersQuery.ts, store/usePermissionStore.ts
+
+POST   /tenant-users                              ✓ USED
+  Service:  services/tenant-user/index.ts
+  Consumer:  useTenantUserMutations.ts
+
+GET    /tenant-users/{id}                         ⚠ DEFINED, NOT CONSUMED
+  Service:  services/tenant-user/index.ts (tenantUser.get() defined)
+  No consumer calls tenantUser.get() directly.
+
+PUT    /tenant-users/{id}                          ✓ USED
+  Service:  services/tenant-user/index.ts
+  Consumer:  useTenantUserMutations.ts
+
+DELETE /tenant-users/{id}                          ✓ USED
+  Service:  services/tenant-user/index.ts
+  Consumer:  useTenantUserMutations.ts
+
+PUT    /tenant-users/{id}/role                     ✗ NOT USED — not defined in codebase
+  No service method, no reference anywhere.
+  NOTE: tenantUser.update() uses PUT /tenant-users/{id}, NOT /tenant-users/{id}/role.
+
+Tenant
+------
+GET    /tenants                                   ✓ USED
+  Service:  services/tenant/index.ts
+  Consumer:  useTenantsQuery.ts, components/UserAvatar.tsx
+
+POST   /tenants                                   ✓ USED
+  Service:  services/tenant/index.ts
+  Consumer:  useTenantMutations.ts
+
+GET    /tenants/{id}                              ⚠ DEFINED, NOT CONSUMED
+  Service:  services/tenant/index.ts (tenant.get() defined)
+  No consumer calls tenant.get() directly.
+
+PUT    /tenants/{id}                               ✓ USED
+  Service:  services/tenant/index.ts
+  Consumer:  useTenantMutations.ts
+
+DELETE /tenants/{id}                               ✓ USED
+  Service:  services/tenant/index.ts
+  Consumer:  useTenantMutations.ts
+
+User
+----
+GET    /users                                     ✓ USED
+  Service:  services/user/index.ts
+  Consumer:  useUsersQuery.ts, dashboard/hooks/useDashboardData.ts
+
+POST   /users                                     ✓ USED
+  Service:  services/user/index.ts
+  Consumer:  useUserMutations.ts
+
+GET    /users/{id}                                ⚠ DEFINED, NOT CONSUMED
+  Service:  services/user/index.ts (userService.getById() defined)
+  No consumer calls userService.getById() directly.
+
+PUT    /users/{id}                                 ✓ USED
+  Service:  services/user/index.ts
+  Consumer:  useUserMutations.ts
+
+DELETE /users/{id}                                 ✓ USED
+  Service:  services/user/index.ts
+  Consumer:  useUserMutations.ts
+
+
+SUMMARY
+=======
+✓ USED (actively consumed):     20 endpoints
+⚠ DEFINED but not consumed:      6 endpoints (service exists, no caller)
+✗ NOT USED (not in codebase):    3 endpoints (no reference at all)
+
+NOT USED at all:
+  - GET  /health
+  - GET  /scalar
+  - PUT  /tenant-users/{id}/role
+
+DEFINED but never called:
+  - POST /policies/reload
+  - GET  /token (rotateToken)
+  - GET  /tenant-roles/{id}
+  - GET  /tenant-users/{id}
+  - GET  /tenants/{id}
+  - GET  /users/{id}
