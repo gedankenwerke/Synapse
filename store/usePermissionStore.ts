@@ -36,13 +36,7 @@ export const usePermissionStore = create<PermissionState>()((set, get) => ({
   },
 
   fetchUserPermissions: async () => {
-    const { user, isSuperAdmin } = useAppStore.getState();
-
-    // SuperAdmin bypasses permission checks entirely
-    if (isSuperAdmin) {
-      set({ userActions: [] });
-      return;
-    }
+    const { user } = useAppStore.getState();
 
     if (!user) {
       set({ userActions: [] });
@@ -51,7 +45,6 @@ export const usePermissionStore = create<PermissionState>()((set, get) => ({
 
     set({ isLoading: true, error: null });
     try {
-      // Step 1: Get the current user's TenantUser records
       const tenantUsers = await tenantUser.list({ user_id: user.id });
       const roleIds = tenantUsers.map((tu) => tu.tenant_role_id);
 
@@ -60,13 +53,11 @@ export const usePermissionStore = create<PermissionState>()((set, get) => ({
         return;
       }
 
-      // Step 2: Get all permission assignments, filter to user's roles
       const allPermissions = await tenantPermission.list();
       const actions = allPermissions
         .filter((p) => roleIds.includes(p.role_id))
         .map((p) => p.action);
 
-      // Deduplicate
       const uniqueActions = Array.from(new Set(actions));
 
       set({ userActions: uniqueActions, isLoading: false });
@@ -76,34 +67,30 @@ export const usePermissionStore = create<PermissionState>()((set, get) => ({
   },
 
   hasAction: (action: string) => {
-    if (useAppStore.getState().isSuperAdmin) return true;
     return get().userActions.includes(action);
   },
 
   hasPermission: (name: PolicyName) => {
-    const { policies } = get();
+    const policies = get().policies ?? [];
     const policyItem = policies.find((p) => p.Name === name);
     if (!policyItem) return false;
 
     if (policyItem.SuperAdminOnly) {
-      return useAppStore.getState().isSuperAdmin;
+      return false;
     }
     return true;
   },
 
   isSuperAdminOnly: (name: PolicyName) => {
-    const { policies } = get();
+    const policies = get().policies ?? [];
     const policyItem = policies.find((p) => p.Name === name);
     return policyItem?.SuperAdminOnly ?? false;
   },
 
   canSeePage: (name: PolicyName) => {
-    if (useAppStore.getState().isSuperAdmin) return true;
-    const { policies } = get();
+    const policies = get().policies ?? [];
     const policyItem = policies.find((p) => p.Name === name);
-    // SuperAdminOnly policies are only visible to SuperAdmin (already handled above)
     if (policyItem?.SuperAdminOnly) return false;
-    // All other pages are visible to any authenticated user
     return true;
   },
 }));

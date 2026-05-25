@@ -3,7 +3,8 @@ import { persist, createJSONStorage } from "zustand/middleware";
 import Cookies from "js-cookie";
 import { LoginRequestUser } from "../services/authentication/types";
 
-const COOKIE_NAME = "auth_token";
+const ACCESS_TOKEN_COOKIE = "auth_token";
+const REFRESH_TOKEN_COOKIE = "refresh_token";
 const COOKIE_MAX_AGE_DAYS = 7;
 
 interface AppState {
@@ -14,9 +15,8 @@ interface AppState {
   user: LoginRequestUser | null;
   token: string | null;
   isAuthenticated: boolean;
-  isSuperAdmin: boolean;
 
-  setLogin: (token: string, user: LoginRequestUser) => void;
+  setLogin: (accessToken: string, refreshToken: string, user: LoginRequestUser) => void;
   setLogout: () => void;
   updateToken: (token: string) => void;
 }
@@ -52,25 +52,31 @@ export const useAppStore = create<AppState>()(
       user: null,
       token: null,
       isAuthenticated: false,
-      isSuperAdmin: false,
 
-      setLogin: (token, user) => {
+      setLogin: (accessToken, refreshToken, user) => {
         const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
-        Cookies.set(COOKIE_NAME, token, {
+        Cookies.set(ACCESS_TOKEN_COOKIE, accessToken, {
           path: "/",
           expires: COOKIE_MAX_AGE_DAYS,
           sameSite: "Strict",
           ...(isSecure && { secure: true }),
         });
-        set({ token, user, isAuthenticated: true, isSuperAdmin: user.isSuperAdmin });
+        Cookies.set(REFRESH_TOKEN_COOKIE, refreshToken, {
+          path: "/",
+          expires: COOKIE_MAX_AGE_DAYS,
+          sameSite: "Strict",
+          ...(isSecure && { secure: true }),
+        });
+        set({ token: accessToken, user, isAuthenticated: true });
       },
       setLogout: () => {
-        Cookies.remove(COOKIE_NAME, { path: "/" });
-        set({ token: null, user: null, isAuthenticated: false, isSuperAdmin: false });
+        Cookies.remove(ACCESS_TOKEN_COOKIE, { path: "/" });
+        Cookies.remove(REFRESH_TOKEN_COOKIE, { path: "/" });
+        set({ token: null, user: null, isAuthenticated: false });
       },
       updateToken: (token: string) => {
         const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
-        Cookies.set(COOKIE_NAME, token, {
+        Cookies.set(ACCESS_TOKEN_COOKIE, token, {
           path: "/",
           expires: COOKIE_MAX_AGE_DAYS,
           sameSite: "Strict",
@@ -83,12 +89,10 @@ export const useAppStore = create<AppState>()(
       name: "app-store",
       storage: createJSONStorage(() => safeLocalStorage()),
       onRehydrateStorage: () => (state) => {
-        // If rehydrated state claims authenticated but token is missing, force logout
         if (state && state.isAuthenticated && !state.token) {
           state.isAuthenticated = false;
           state.user = null;
         }
-        // Clean up legacy _zugang key from previous versions
         try {
           localStorage.removeItem("_zugang");
         } catch {}
@@ -97,7 +101,6 @@ export const useAppStore = create<AppState>()(
   )
 );
 
-// Listen for token refresh events from the axios interceptor
 if (typeof window !== "undefined") {
   window.addEventListener("token-refreshed", ((e: CustomEvent) => {
     const newToken = e.detail as string;

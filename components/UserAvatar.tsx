@@ -38,13 +38,7 @@ export function UserAvatar() {
     ? tenants.find((t) => t.id === user.tenant_id)?.name
     : undefined;
 
-  const roleLabel = user?.isSuperAdmin
-    ? t("role.superAdmin")
-    : undefined;
-
-  const subtitle = tenantName && roleLabel
-    ? `${tenantName} / ${roleLabel}`
-    : tenantName ?? roleLabel ?? t("role.superAdmin");
+  const subtitle = tenantName ?? t("role.superAdmin");
 
   return (
     <Menu shadow="md" width={200}>
