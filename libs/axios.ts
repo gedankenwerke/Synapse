@@ -2,6 +2,7 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import Cookies from 'js-cookie';
 
 const COOKIE_NAME = 'auth_token';
+const REFRESH_COOKIE_NAME = 'refresh_token';
 
 const baseRequest = axios.create({
     baseURL: '',
@@ -18,14 +19,14 @@ baseRequest.interceptors.request.use((config) => {
 
 let isRefreshing = false;
 let failedQueue: Array<{
-    resolve: (token: string) => void;
+    resolve: (accessToken: string) => void;
     reject: (error: unknown) => void;
 }> = [];
 
-function processQueue(token: string | null, error: unknown = null) {
+function processQueue(accessToken: string | null, error: unknown = null) {
     failedQueue.forEach(({ resolve, reject }) => {
-        if (token) {
-            resolve(token);
+        if (accessToken) {
+            resolve(accessToken);
         } else {
             reject(error);
         }
@@ -56,8 +57,8 @@ baseRequest.interceptors.response.use(
                 // Queue up while another refresh is in progress
                 return new Promise((resolve, reject) => {
                     failedQueue.push({
-                        resolve: (newToken: string) => {
-                            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+                        resolve: (newAccessToken: string) => {
+                            originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                             resolve(baseRequest(originalRequest));
                         },
                         reject,
@@ -70,27 +71,36 @@ baseRequest.interceptors.response.use(
 
             try {
                 // Use raw axios (no interceptors) to avoid infinite loop
-                // Relative path works because Next.js rewrites proxy /api/* to the backend
-                const currentToken = Cookies.get(COOKIE_NAME);
+                const refreshToken = Cookies.get(REFRESH_COOKIE_NAME);
                 const response = await axios.get('/api/v1/token', {
-                    headers: { Authorization: `Bearer ${currentToken}` },
+                    headers: { Authorization: `Bearer ${refreshToken}` },
                 });
 
-                const newToken = response.data?.data?.token || response.data?.token;
-                if (newToken) {
-                    Cookies.set(COOKIE_NAME, newToken, {
+                const data = response.data?.data ?? response.data;
+                const newAccessToken = data?.access_token;
+                const newRefreshToken = data?.refresh_token;
+                if (newAccessToken) {
+                    const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
+                    const cookieOpts = {
                         path: '/',
                         expires: 7,
-                        sameSite: 'Strict',
-                    });
+                        sameSite: 'Strict' as const,
+                        ...(isSecure && { secure: true }),
+                    };
+                    Cookies.set(COOKIE_NAME, newAccessToken, cookieOpts);
+                    if (newRefreshToken) {
+                        Cookies.set(REFRESH_COOKIE_NAME, newRefreshToken, cookieOpts);
+                    }
 
                     // Dispatch a custom event so the store can update
                     if (typeof window !== 'undefined') {
-                        window.dispatchEvent(new CustomEvent('token-refreshed', { detail: newToken }));
+                        window.dispatchEvent(new CustomEvent('token-refreshed', {
+                            detail: { access_token: newAccessToken, refresh_token: newRefreshToken },
+                        }));
                     }
 
-                    processQueue(newToken);
-                    originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+                    processQueue(newAccessToken);
+                    originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
                     return baseRequest(originalRequest);
                 } else {
                     processQueue(null, error);
@@ -105,6 +115,7 @@ baseRequest.interceptors.response.use(
                 processQueue(null, refreshError);
                 // Refresh failed — clear token and redirect to login
                 Cookies.remove(COOKIE_NAME, { path: '/' });
+                Cookies.remove(REFRESH_COOKIE_NAME, { path: '/' });
                 if (typeof window !== 'undefined') {
                     window.dispatchEvent(new CustomEvent('token-refresh-failed'));
                 }

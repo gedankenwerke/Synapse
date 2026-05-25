@@ -4,6 +4,7 @@ import Cookies from "js-cookie";
 import { LoginRequestUser } from "../services/authentication/types";
 
 const COOKIE_NAME = "auth_token";
+const REFRESH_COOKIE_NAME = "refresh_token";
 const COOKIE_MAX_AGE_DAYS = 7;
 
 interface AppState {
@@ -13,12 +14,14 @@ interface AppState {
 
   user: LoginRequestUser | null;
   token: string | null;
+  refreshToken: string | null;
   isAuthenticated: boolean;
   isSuperAdmin: boolean;
 
-  setLogin: (token: string, user: LoginRequestUser) => void;
+  setLogin: (accessToken: string, refreshToken: string, user: LoginRequestUser) => void;
+  setSuperAdmin: (value: boolean) => void;
   setLogout: () => void;
-  updateToken: (token: string) => void;
+  updateToken: (accessToken: string, refreshToken?: string) => void;
 }
 
 const noopStorage = {
@@ -51,32 +54,41 @@ export const useAppStore = create<AppState>()(
 
       user: null,
       token: null,
+      refreshToken: null,
       isAuthenticated: false,
       isSuperAdmin: false,
 
-      setLogin: (token, user) => {
+      setLogin: (accessToken, refreshToken, user) => {
         const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
-        Cookies.set(COOKIE_NAME, token, {
+        const cookieOpts = {
           path: "/",
           expires: COOKIE_MAX_AGE_DAYS,
-          sameSite: "Strict",
+          sameSite: "Strict" as const,
           ...(isSecure && { secure: true }),
-        });
-        set({ token, user, isAuthenticated: true, isSuperAdmin: user.isSuperAdmin });
+        };
+        Cookies.set(COOKIE_NAME, accessToken, cookieOpts);
+        Cookies.set(REFRESH_COOKIE_NAME, refreshToken, cookieOpts);
+        set({ token: accessToken, refreshToken, user, isAuthenticated: true });
       },
+      setSuperAdmin: (value) => set({ isSuperAdmin: value }),
       setLogout: () => {
         Cookies.remove(COOKIE_NAME, { path: "/" });
-        set({ token: null, user: null, isAuthenticated: false, isSuperAdmin: false });
+        Cookies.remove(REFRESH_COOKIE_NAME, { path: "/" });
+        set({ token: null, refreshToken: null, user: null, isAuthenticated: false, isSuperAdmin: false });
       },
-      updateToken: (token: string) => {
+      updateToken: (accessToken: string, refreshToken?: string) => {
         const isSecure = typeof window !== "undefined" && window.location.protocol === "https:";
-        Cookies.set(COOKIE_NAME, token, {
+        const cookieOpts = {
           path: "/",
           expires: COOKIE_MAX_AGE_DAYS,
-          sameSite: "Strict",
+          sameSite: "Strict" as const,
           ...(isSecure && { secure: true }),
-        });
-        set({ token });
+        };
+        Cookies.set(COOKIE_NAME, accessToken, cookieOpts);
+        if (refreshToken) {
+          Cookies.set(REFRESH_COOKIE_NAME, refreshToken, cookieOpts);
+        }
+        set({ token: accessToken, ...(refreshToken && { refreshToken }) });
       },
     }),
     {
@@ -100,8 +112,8 @@ export const useAppStore = create<AppState>()(
 // Listen for token refresh events from the axios interceptor
 if (typeof window !== "undefined") {
   window.addEventListener("token-refreshed", ((e: CustomEvent) => {
-    const newToken = e.detail as string;
-    useAppStore.getState().updateToken(newToken);
+    const detail = e.detail as { access_token: string; refresh_token?: string };
+    useAppStore.getState().updateToken(detail.access_token, detail.refresh_token);
   }) as EventListener);
 
   window.addEventListener("token-refresh-failed", () => {

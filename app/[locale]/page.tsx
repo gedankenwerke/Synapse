@@ -16,6 +16,7 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 import { authentication } from "@/services/authentication";
+import { tenant } from "@/services/tenant";
 import { useAppStore } from "@/store/useAppStore";
 import { usePermissionStore } from "@/store/usePermissionStore";
 import { useQueryClient } from "@tanstack/react-query";
@@ -24,7 +25,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setLogin } = useAppStore();
+  const { setLogin, setSuperAdmin } = useAppStore();
   const queryClient = useQueryClient();
 
   const t = useTranslations("login");
@@ -49,7 +50,21 @@ export default function LoginPage() {
       });
 
       queryClient.clear();
-      setLogin(response.data.token, response.data.user);
+      setLogin(response.access_token, response.refresh_token, response.user);
+
+      // Determine isSuperAdmin from tenant hierarchy:
+      // A user is superadmin if their tenant has no parent (root tenant)
+      try {
+        const tenants = await tenant.list();
+        const userTenant = tenants.find((t) => t.ID === response.user.tenant_id);
+        // Root tenant: ParentID is empty, "0", or not set
+        const isSuperAdmin = !userTenant || !userTenant.ParentID || userTenant.ParentID === "0" || userTenant.ParentID === "";
+        setSuperAdmin(isSuperAdmin);
+      } catch {
+        // If tenant fetch fails, default to non-superadmin
+        setSuperAdmin(false);
+      }
+
       await usePermissionStore.getState().fetchPolicies();
       await usePermissionStore.getState().fetchUserPermissions();
 

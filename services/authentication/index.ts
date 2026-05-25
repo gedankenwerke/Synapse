@@ -1,11 +1,12 @@
 import httpClient from "@/libs/axios";
-import { LoginRequestBody, LoginRequestResponse, RefreshTokenResponse } from './types';
+import { LoginRequestBody, LoginRequestResponse, RefreshTokenResponse, ApiLoginRequestResponse, ApiRefreshTokenResponse, mapApiLoginResponse, mapApiRefreshResponse } from './types';
 import { ResponseWrapper } from '@/types/response';
 
 export const authentication = {
-    login: async (payload: LoginRequestBody): Promise<ResponseWrapper<LoginRequestResponse>> => {
-        const response = await httpClient.post<ResponseWrapper<LoginRequestResponse>>('/api/v1/login', payload);
-        return response as unknown as ResponseWrapper<LoginRequestResponse>;
+    login: async (payload: LoginRequestBody): Promise<LoginRequestResponse> => {
+        const response = await httpClient.post<ResponseWrapper<ApiLoginRequestResponse>>('/api/v1/login', payload);
+        const apiData = (response as unknown as ResponseWrapper<ApiLoginRequestResponse>).data;
+        return mapApiLoginResponse(apiData);
     },
 
     me: async (): Promise<boolean> => {
@@ -14,7 +15,8 @@ export const authentication = {
     },
 
     refresh: async (): Promise<RefreshTokenResponse> => {
-        const response = await httpClient.get<ResponseWrapper<RefreshTokenResponse>>('/api/v1/token');
-        return (response as unknown as ResponseWrapper<RefreshTokenResponse>).data;
+        const response = await httpClient.get<ResponseWrapper<ApiRefreshTokenResponse>>('/api/v1/token');
+        const apiData = (response as unknown as ResponseWrapper<ApiRefreshTokenResponse>).data;
+        return mapApiRefreshResponse(apiData);
     },
 };

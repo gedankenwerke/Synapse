@@ -15,7 +15,7 @@ import { tenant } from "@/services/tenant";
 
 export function UserAvatar() {
   const router = useRouter();
-  const { user, setLogout } = useAppStore();
+  const { user, isSuperAdmin, setLogout } = useAppStore();
   const queryClient = useQueryClient();
   const t = useTranslations("user");
 
@@ -40,7 +40,7 @@ export function UserAvatar() {
     ? tenants.find((t) => t.ID === user.tenant_id)?.Name
     : undefined;
 
-  const roleLabel = user?.isSuperAdmin
+  const roleLabel = isSuperAdmin
     ? t("role.superAdmin")
     : undefined;
 
