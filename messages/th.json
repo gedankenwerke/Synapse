@@ -548,6 +548,16 @@
       "showing": "แสดง {start}-{end} จาก {total}",
       "totalItems": "{total} ผู้ใช้"
     },
+    "selectTenant": "เลือกผู้เช่า",
+    "backToTenants": "กลับไปยังผู้เช่า",
+    "usersInTenant": "{count} ผู้ใช้ใน {tenant}",
+    "tenantUsers": "{count} ผู้ใช้",
+    "parentTenant": "ผู้เช่าหลัก: {name}",
+    "rootTenant": "ราก",
+    "editUser": "แก้ไขผู้ใช้",
+    "deleteUser": "ลบผู้ใช้",
+    "userDetails": "รายละเอียดผู้ใช้",
+    "noUsersInTenant": "ไม่มีผู้ใช้ในผู้เช่านี้",
     "tenants": {
       "title": "ผู้เช่า",
       "searchPlaceholder": "ค้นหาผู้เช่า...",

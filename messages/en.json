@@ -548,6 +548,16 @@
       "showing": "Showing {start}-{end} of {total}",
       "totalItems": "{total} users"
     },
+    "selectTenant": "Select a Tenant",
+    "backToTenants": "Back to Tenants",
+    "usersInTenant": "{count} users in {tenant}",
+    "tenantUsers": "{count} users",
+    "parentTenant": "Parent: {name}",
+    "rootTenant": "Root",
+    "editUser": "Edit User",
+    "deleteUser": "Delete User",
+    "userDetails": "User Details",
+    "noUsersInTenant": "No users in this tenant",
     "tenants": {
       "title": "Tenants",
       "searchPlaceholder": "Search tenants...",
