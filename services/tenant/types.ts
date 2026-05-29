@@ -1,9 +1,9 @@
 export interface Tenant {
-  ID: string;
-  ParentID: string;
-  Name: string;
-  CreatedAt: string;
-  UpdatedAt: string;
+  id: string;
+  parentID: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TenantCreateRequest {

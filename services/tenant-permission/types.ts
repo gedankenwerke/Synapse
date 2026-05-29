@@ -1,16 +1,15 @@
 export interface TenantPermission {
-  ID: string;
-  RoleID: string;
-  Action: string;
-  CreatedAt: string;
-  UpdatedAt: string;
+  id: string;
+  roleID: string;
+  action: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TenantPermissionCreateRequest {
-  action: string;
-  role_id: string;
+  actions: string[];
 }
 
-export interface TenantPermissionUpdateRequest {
-  action?: string;
+export interface TenantPermissionDeleteRequest {
+  actions: string[];
 }

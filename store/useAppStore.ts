@@ -94,7 +94,14 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: "app-store",
+      version: 1,
       storage: createJSONStorage(() => safeLocalStorage()),
+      migrate: (persisted, version) => {
+        if (version === 0) {
+          return null;
+        }
+        return persisted;
+      },
       onRehydrateStorage: () => (state) => {
         if (state && state.isAuthenticated && !state.token) {
           state.isAuthenticated = false;

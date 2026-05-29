@@ -51,8 +51,8 @@ export function AddTenantModal({
   });
 
   const parentOptions = tenants.map((tenant) => ({
-    value: tenant.ID,
-    label: tenant.Name,
+    value: tenant.id,
+    label: tenant.name,
   }));
 
   const handleSubmit = (values: TenantFormValues) => {
@@ -110,8 +110,8 @@ export function EditTenantModal({
 
   const form = useForm<TenantFormValues>({
     initialValues: {
-      name: tenant?.Name ?? "",
-      parent_id: tenant?.ParentID ?? "",
+      name: tenant?.name ?? "",
+      parent_id: tenant?.parentID ?? "",
     },
     validate: {
       name: (val) =>
@@ -122,8 +122,8 @@ export function EditTenantModal({
   });
 
   const parentOptions = tenants.map((t) => ({
-    value: t.ID,
-    label: t.Name,
+    value: t.id,
+    label: t.name,
   }));
 
   const handleSubmit = (values: TenantFormValues) => {

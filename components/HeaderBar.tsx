@@ -28,9 +28,7 @@ export function HeaderBar({ breadcrumbs }: HeaderBarProps) {
   const items = breadcrumbs ?? (() => {
     const homeHref = getHomePath(userRole);
     const routeConfig: Record<string, { labelKey: string }[]> = {
-      "/superadmin": [{ labelKey: "superadmin" }],
-      "/senior": [{ labelKey: "dashboard" }],
-      "/agent": [{ labelKey: "dashboard" }],
+      "/dashboard": [{ labelKey: "dashboard" }],
       "/account-statement": [{ labelKey: "accountStatement" }],
       "/net-balance": [{ labelKey: "netBalance" }],
       "/deposits-withdrawals": [{ labelKey: "transaction" }],

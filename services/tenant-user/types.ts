@@ -1,10 +1,10 @@
 export interface TenantUser {
-  ID: string;
-  TenantID: string;
-  TenantRoleID: string;
-  UserID: string;
-  CreatedAt: string;
-  UpdatedAt: string;
+  id: string;
+  tenantID: string;
+  tenantRoleID: string;
+  userID: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TenantUserCreateRequest {

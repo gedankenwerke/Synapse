@@ -53,8 +53,8 @@ export function AddRoleModal({
   });
 
   const tenantOptions = tenants.map((tenant) => ({
-    value: tenant.ID,
-    label: tenant.Name,
+    value: tenant.id,
+    label: tenant.name,
   }));
 
   const handleSubmit = (values: RoleFormValues) => {
@@ -113,8 +113,8 @@ export function EditRoleModal({
 
   const form = useForm<RoleFormValues>({
     initialValues: {
-      name: role?.Name ?? "",
-      tenant_id: role?.TenantID ?? "",
+      name: role?.name ?? "",
+      tenant_id: role?.tenantID ?? "",
     },
     validate: {
       name: (val) =>
@@ -125,8 +125,8 @@ export function EditRoleModal({
   });
 
   const tenantOptions = tenants.map((tenant) => ({
-    value: tenant.ID,
-    label: tenant.Name,
+    value: tenant.id,
+    label: tenant.name,
   }));
 
   const handleSubmit = (values: RoleFormValues) => {

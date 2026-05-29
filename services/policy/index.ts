@@ -1,9 +1,10 @@
 import httpClient from "@/libs/axios";
-import { PolicyCatalogItem, PolicyReloadResponse } from "./types";
+import { PolicyCatalogItem, PolicyReloadResponse, ApiPolicyItem, mapApiPolicy } from "./types";
 import { ResponseWrapper } from "@/types/response";
 
 interface PolicyListResponse {
-  policy_catalog: PolicyCatalogItem[];
+  policies: ApiPolicyItem[];
+  policy_catalog?: ApiPolicyItem[];
 }
 
 export const policy = {
@@ -12,12 +13,9 @@ export const policy = {
       "/api/v1/policies"
     );
     const data = (response as unknown as ResponseWrapper<PolicyListResponse>).data;
-    // API may return { policy_catalog: [...] } nested or a flat array
-    if (Array.isArray(data)) {
-      return data as unknown as PolicyCatalogItem[];
-    }
-    const catalog = data?.policy_catalog;
-    return Array.isArray(catalog) ? catalog : [];
+    // Handle multiple response formats: { policies: [...] }, { policy_catalog: [...] }, { items: [...] }, or bare array
+    const apiItems = data?.policies ?? data?.policy_catalog ?? ("items" in (data ?? {}) ? (data as any).items : undefined) ?? (Array.isArray(data) ? data as unknown as ApiPolicyItem[] : []);
+    return apiItems.map(mapApiPolicy);
   },
 
   reload: async (): Promise<PolicyReloadResponse> => {

@@ -114,29 +114,29 @@ async function main() {
   console.log(`   ✓ Found ${tenants.length} tenants, ${roles.length} roles, ${users.length} users`);
 
   // Step 3: Create or find Building1 (Senior tenant)
-  let building1 = tenants.find((t: any) => t.Name === "Building1");
+  let building1 = tenants.find((t: any) => t.name === "Building1" || t.Name === "Building1");
   if (building1) {
-    console.log(`\n3. Building1 already exists: ID=${building1.ID}`);
+    console.log(`\n3. Building1 already exists: ID=${building1.id || building1.ID}`);
   } else {
     console.log("\n3. Creating Building1 (Senior tenant)...");
     building1 = await api("POST", "/api/v1/tenants", {
       name: "Building1",
       parent_id: ROOT_TENANT_ID,
     });
-    console.log(`   ✓ Building1 created: ID=${building1.ID}`);
+    console.log(`   ✓ Building1 created: ID=${building1.id || building1.ID}`);
   }
 
   // Step 4: Create Building1-Agent (Agent tenant under Building1)
-  let building1Agent = tenants.find((t: any) => t.Name === "Building1-Agent");
+  let building1Agent = tenants.find((t: any) => t.name === "Building1-Agent" || t.Name === "Building1-Agent");
   if (building1Agent) {
-    console.log(`\n4. Building1-Agent already exists: ID=${building1Agent.ID}`);
+    console.log(`\n4. Building1-Agent already exists: ID=${building1Agent.id || building1Agent.ID}`);
   } else {
     console.log("\n4. Creating Building1-Agent (Agent tenant)...");
     building1Agent = await api("POST", "/api/v1/tenants", {
       name: "Building1-Agent",
-      parent_id: building1.ID,
+      parent_id: building1.id || building1.ID,
     });
-    console.log(`   ✓ Building1-Agent created: ID=${building1Agent.ID}`);
+    console.log(`   ✓ Building1-Agent created: ID=${building1Agent.id || building1Agent.ID}`);
   }
 
   // Step 5: Create or find steve user
@@ -146,11 +146,11 @@ async function main() {
     console.log(`\n5. steve already exists: ID=${getUserId(steve)}`);
     // Update home tenant to Building1 if needed
     const steveTenantId = steve.tenant_id || steve.TenantID;
-    if (steveTenantId !== building1.ID) {
+    if (steveTenantId !== (building1.id || building1.ID)) {
       console.log(`   Updating steve home tenant from ${steveTenantId} to Building1...`);
       await api("PUT", `/api/v1/users/${getUserId(steve)}`, {
         username: "steve",
-        tenant_id: building1.ID,
+        tenant_id: building1.id || building1.ID,
       });
       console.log("   ✓ Home tenant updated");
     }
@@ -159,7 +159,7 @@ async function main() {
     steve = await api("POST", "/api/v1/users", {
       username: "steve",
       password: "steve123",
-      tenant_id: building1.ID,
+      tenant_id: building1.id || building1.ID,
     });
     console.log(`   ✓ steve created: ID=${getUserId(steve)}`);
   }
@@ -170,11 +170,11 @@ async function main() {
     console.log(`\n6. stand already exists: ID=${getUserId(stand)}`);
     // Update home tenant to Building1-Agent if needed
     const standTenantId = stand.tenant_id || stand.TenantID;
-    if (standTenantId !== building1Agent.ID) {
+    if (standTenantId !== (building1Agent.id || building1Agent.ID)) {
       console.log(`   Updating stand home tenant from ${standTenantId} to Building1-Agent...`);
       await api("PUT", `/api/v1/users/${getUserId(stand)}`, {
         username: "stand",
-        tenant_id: building1Agent.ID,
+        tenant_id: building1Agent.id || building1Agent.ID,
       });
       console.log("   ✓ Home tenant updated");
     }
@@ -183,33 +183,33 @@ async function main() {
     stand = await api("POST", "/api/v1/users", {
       username: "stand",
       password: "stand123",
-      tenant_id: building1Agent.ID,
+      tenant_id: building1Agent.id || building1Agent.ID,
     });
     console.log(`   ✓ stand created: ID=${getUserId(stand)}`);
   }
 
   // Step 7: Create or find SeniorAdmin role in Building1
-  let seniorAdminRole = roles.find((r: any) => r.Name === "SeniorAdmin" && r.TenantID === building1.ID);
+  let seniorAdminRole = roles.find((r: any) => r.Name === "SeniorAdmin" && r.TenantID === (building1.id || building1.ID));
   if (seniorAdminRole) {
     console.log(`\n7. SeniorAdmin role already exists: ID=${seniorAdminRole.ID}`);
   } else {
     console.log("\n7. Creating SeniorAdmin role in Building1...");
     seniorAdminRole = await api("POST", "/api/v1/tenant-roles", {
       name: "SeniorAdmin",
-      tenant_id: building1.ID,
+      tenant_id: building1.id || building1.ID,
     });
     console.log(`   ✓ SeniorAdmin role created: ID=${seniorAdminRole.ID}`);
   }
 
   // Step 8: Create or find AgentOperator role in Building1-Agent
-  let agentOperatorRole = roles.find((r: any) => r.Name === "AgentOperator" && r.TenantID === building1Agent.ID);
+  let agentOperatorRole = roles.find((r: any) => r.Name === "AgentOperator" && r.TenantID === (building1Agent.id || building1Agent.ID));
   if (agentOperatorRole) {
     console.log(`\n8. AgentOperator role already exists: ID=${agentOperatorRole.ID}`);
   } else {
     console.log("\n8. Creating AgentOperator role in Building1-Agent...");
     agentOperatorRole = await api("POST", "/api/v1/tenant-roles", {
       name: "AgentOperator",
-      tenant_id: building1Agent.ID,
+      tenant_id: building1Agent.id || building1Agent.ID,
     });
     console.log(`   ✓ AgentOperator role created: ID=${agentOperatorRole.ID}`);
   }
@@ -256,7 +256,7 @@ async function main() {
   const steveId = getUserId(steve);
   const standId = getUserId(stand);
   const steveAssignment = tenantUsers.find(
-    (tu: any) => tu.UserID === steveId && tu.TenantID === building1.ID
+    (tu: any) => tu.UserID === steveId && tu.TenantID === (building1.id || building1.ID)
   );
   if (steveAssignment) {
     console.log("\n11. steve → Building1 assignment already exists (updating role to SeniorAdmin)...");
@@ -267,7 +267,7 @@ async function main() {
   } else {
     console.log("\n11. Assigning steve to Building1 as SeniorAdmin...");
     await apiIgnore409("POST", "/api/v1/tenant-users", {
-      tenant_id: building1.ID,
+      tenant_id: building1.id || building1.ID,
       user_id: steveId,
       tenant_role_id: seniorAdminRole.ID,
     });
@@ -276,7 +276,7 @@ async function main() {
 
   // Step 12: Assign stand → Building1-Agent + AgentOperator
   const standAssignment = tenantUsers.find(
-    (tu: any) => tu.UserID === standId && tu.TenantID === building1Agent.ID
+    (tu: any) => tu.UserID === standId && tu.TenantID === (building1Agent.id || building1Agent.ID)
   );
   if (standAssignment) {
     console.log("\n12. stand → Building1-Agent assignment already exists (updating role to AgentOperator)...");
@@ -287,7 +287,7 @@ async function main() {
   } else {
     console.log("\n12. Assigning stand to Building1-Agent as AgentOperator...");
     await apiIgnore409("POST", "/api/v1/tenant-users", {
-      tenant_id: building1Agent.ID,
+      tenant_id: building1Agent.id || building1Agent.ID,
       user_id: standId,
       tenant_role_id: agentOperatorRole.ID,
     });
@@ -297,11 +297,11 @@ async function main() {
   // Summary
   console.log("\n=== Seed Complete ===\n");
   console.log("Tenants:");
-  console.log(`  Building1       (Senior): ${building1.ID} (parent: ${building1.ParentID})`);
-  console.log(`  Building1-Agent (Agent):  ${building1Agent.ID} (parent: ${building1Agent.ParentID})`);
+  console.log(`  Building1       (Senior): ${building1.id || building1.ID} (parent: ${building1.parentID || building1.ParentID})`);
+  console.log(`  Building1-Agent (Agent):  ${building1Agent.id || building1Agent.ID} (parent: ${building1Agent.parentID || building1Agent.ParentID})`);
   console.log("\nUsers:");
-  console.log(`  steve  (ID: ${steveId}) — home tenant: ${steve.tenant_id || steve.TenantID || building1.ID}`);
-  console.log(`  stand  (ID: ${standId}) — home tenant: ${stand.tenant_id || stand.TenantID || building1Agent.ID}`);
+  console.log(`  steve  (ID: ${steveId}) — home tenant: ${steve.tenant_id || steve.TenantID || building1.id || building1.ID}`);
+  console.log(`  stand  (ID: ${standId}) — home tenant: ${stand.tenant_id || stand.TenantID || building1Agent.id || building1Agent.ID}`);
   console.log("\nRoles:");
   console.log(`  SeniorAdmin   (Building1):         ${seniorAdminRole.ID}`);
   console.log(`  AgentOperator (Building1-Agent):   ${agentOperatorRole.ID}`);

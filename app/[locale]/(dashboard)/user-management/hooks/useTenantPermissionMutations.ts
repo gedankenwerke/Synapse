@@ -1,12 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { tenantPermission } from "@/services/tenant-permission";
-import type { TenantPermissionCreateRequest } from "@/services/tenant-permission/types";
 
 export function useCreateTenantPermission() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (data: TenantPermissionCreateRequest) =>
-      tenantPermission.create(data),
+    mutationFn: ({ roleId, actions }: { roleId: string; actions: string[] }) =>
+      tenantPermission.create(roleId, { actions }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenant-permissions"] });
     },
@@ -16,7 +15,8 @@ export function useCreateTenantPermission() {
 export function useDeleteTenantPermission() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => tenantPermission.delete(id),
+    mutationFn: ({ roleId, actions }: { roleId: string; actions: string[] }) =>
+      tenantPermission.remove(roleId, { actions }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tenant-permissions"] });
     },

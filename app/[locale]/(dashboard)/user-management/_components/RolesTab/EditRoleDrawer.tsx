@@ -44,10 +44,10 @@ export function EditRoleDrawer({
 
   if (!role) return null;
 
-  const tenantMap = new Map((tenants ?? []).map((t) => [t.ID, t.Name]));
-  const tenantName = tenantMap.get(role.TenantID) ?? "—";
+  const tenantMap = new Map((tenants ?? []).map((t) => [t.id, t.name]));
+  const tenantName = tenantMap.get(role.tenantID) ?? "—";
 
-  const enabledActions = new Set(permissions.map((p) => p.Action));
+  const enabledActions = new Set(permissions.map((p) => p.action));
 
   return (
     <Drawer
@@ -60,11 +60,11 @@ export function EditRoleDrawer({
     >
       <ScrollArea h="calc(100vh - 80px)" offsetScrollbars>
         <Group justify="space-between" mb="xs">
-          <Text fw={700} size="lg">{role.Name}</Text>
+          <Text fw={700} size="lg">{role.name}</Text>
           <Badge variant="light">{tenantName}</Badge>
         </Group>
         <Text size="sm" c="dimmed" mb="sm">
-          {t("title", { role: role.Name })}
+          {t("title", { role: role.name })}
         </Text>
 
         <Divider my="sm" />

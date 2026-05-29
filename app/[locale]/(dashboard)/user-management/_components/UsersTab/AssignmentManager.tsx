@@ -35,13 +35,13 @@ export function AssignmentManager({
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
 
   const tenantOptions = tenants.map((tenant) => ({
-    value: tenant.ID,
-    label: tenant.Name,
+    value: tenant.id,
+    label: tenant.name,
   }));
 
   const roleOptions = roles.map((role) => ({
-    value: role.ID,
-    label: role.Name,
+    value: role.id,
+    label: role.name,
   }));
 
   const handleRemove = (assignmentId: string) => {
@@ -56,15 +56,15 @@ export function AssignmentManager({
     );
     if (isDuplicate) return;
 
-    const tenant = tenants.find((t) => t.ID === selectedTenant);
-    const role = roles.find((r) => r.ID === selectedRole);
+    const tenant = tenants.find((t) => t.id === selectedTenant);
+    const role = roles.find((r) => r.id === selectedRole);
 
     const newAssignment: AssignmentData = {
       id: `new-${Date.now()}`,
       tenantId: selectedTenant,
-      tenantName: tenant?.Name ?? "",
+      tenantName: tenant?.name ?? "",
       roleId: selectedRole,
-      roleName: role?.Name ?? "",
+      roleName: role?.name ?? "",
       permissions: [],
     };
 

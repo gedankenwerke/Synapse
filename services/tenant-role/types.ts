@@ -1,9 +1,9 @@
 export interface TenantRole {
-  ID: string;
-  TenantID: string;
-  Name: string;
-  CreatedAt: string;
-  UpdatedAt: string;
+  id: string;
+  tenantID: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface TenantRoleCreateRequest {

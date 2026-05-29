@@ -35,7 +35,7 @@ export function UserAvatar() {
     : "U";
 
   const tenantName = user?.tenant_id
-    ? tenants.find((t) => t.ID === user.tenant_id)?.Name
+    ? tenants.find((t) => t.id === user.tenant_id)?.name
     : undefined;
 
   const subtitle = tenantName ?? t("role.superAdmin");

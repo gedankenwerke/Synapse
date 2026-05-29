@@ -49,7 +49,7 @@ export function AgentTab({
 }: AgentTabProps) {
   const t = useTranslations("userManagement.tenants");
 
-  const agents = tenants.filter((tenant) => tenant.ParentID === parentTenantId);
+  const agents = tenants.filter((tenant) => tenant.parentID === parentTenantId);
 
   if (isLoading) {
     return (
@@ -86,9 +86,9 @@ export function AgentTab({
             </Table.Tr>
           ) : (
             agents.map((agent) => (
-              <Table.Tr key={agent.ID}>
-                <Table.Td><Text size="sm" fw={500}>{agent.Name}</Text></Table.Td>
-                <Table.Td><Text size="sm">{formatThaiDate(agent.CreatedAt)}</Text></Table.Td>
+              <Table.Tr key={agent.id}>
+                <Table.Td><Text size="sm" fw={500}>{agent.name}</Text></Table.Td>
+                <Table.Td><Text size="sm">{formatThaiDate(agent.createdAt)}</Text></Table.Td>
                 <Table.Td>
                   <Group gap={4} wrap="nowrap">
                     <ActionGuard action="UpdateTenant">

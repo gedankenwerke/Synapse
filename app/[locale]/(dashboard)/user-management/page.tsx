@@ -103,37 +103,37 @@ export default function UserManagementPage() {
   const { data: tenantUsers = [] } = useTenantUsersQuery();
   const { data: tenants = [] } = useTenantsQuery();
   const { data: roles = [] } = useTenantRolesQuery();
-  const { data: permissions = [] } = useTenantPermissionsQuery();
+  const { data: permissions = [], isLoading: permissionsLoading } = useTenantPermissionsQuery(roles.map((r) => r.id));
 
   // ── Tenant-scoped filtering ──
   const visibleTenantIds = getVisibleTenantIds(currentTenantId, tenants, isSuperAdmin);
-  const scopedTenants = isSuperAdmin ? tenants : tenants.filter((t) => visibleTenantIds.includes(t.ID));
-  const scopedRoles = isSuperAdmin ? roles : roles.filter((r) => visibleTenantIds.includes(r.TenantID));
+  const scopedTenants = isSuperAdmin ? tenants : tenants.filter((t) => visibleTenantIds.includes(t.id));
+  const scopedRoles = isSuperAdmin ? roles : roles.filter((r) => visibleTenantIds.includes(r.tenantID));
   const scopedPermissions = isSuperAdmin ? permissions : permissions.filter((p) => {
-    const role = roles.find((r) => r.ID === p.RoleID);
-    return role ? visibleTenantIds.includes(role.TenantID) : false;
+    const role = roles.find((r) => r.id === p.roleID);
+    return role ? visibleTenantIds.includes(role.tenantID) : false;
   });
-  const scopedTenantUsers = isSuperAdmin ? tenantUsers : tenantUsers.filter((tu) => visibleTenantIds.includes(tu.TenantID));
+  const scopedTenantUsers = isSuperAdmin ? tenantUsers : tenantUsers.filter((tu) => visibleTenantIds.includes(tu.tenantID));
 
-  const tenantMap = new Map(scopedTenants.map((t) => [t.ID, t.Name]));
-  const roleMap = new Map(scopedRoles.map((r) => [r.ID, r.Name]));
+  const tenantMap = new Map(scopedTenants.map((t) => [t.id, t.name]));
+  const roleMap = new Map(scopedRoles.map((r) => [r.id, r.name]));
   const permissionMap = new Map<string, string[]>();
   for (const p of scopedPermissions) {
-    const list = permissionMap.get(p.RoleID) ?? [];
-    list.push(p.Action);
-    permissionMap.set(p.RoleID, list);
+    const list = permissionMap.get(p.roleID) ?? [];
+    list.push(p.action);
+    permissionMap.set(p.roleID, list);
   }
 
   const users: UserData[] = (usersData?.pages.flatMap((p) => p.items.map(mapApiUserToUserData)) ?? []).map((user) => {
     const assignments: AssignmentData[] = scopedTenantUsers
-      .filter((tu) => tu.UserID === user.id)
+      .filter((tu) => tu.userID === user.id)
       .map((tu) => ({
-        id: tu.ID,
-        tenantId: tu.TenantID,
-        tenantName: tenantMap.get(tu.TenantID) ?? "—",
-        roleId: tu.TenantRoleID,
-        roleName: roleMap.get(tu.TenantRoleID) ?? "—",
-        permissions: permissionMap.get(tu.TenantRoleID) ?? [],
+        id: tu.id,
+        tenantId: tu.tenantID,
+        tenantName: tenantMap.get(tu.tenantID) ?? "—",
+        roleId: tu.tenantRoleID,
+        roleName: roleMap.get(tu.tenantRoleID) ?? "—",
+        permissions: permissionMap.get(tu.tenantRoleID) ?? [],
       }));
     return { ...user, assignments };
   });
@@ -226,8 +226,8 @@ export default function UserManagementPage() {
   const updateTenant = useUpdateTenant();
   const deleteTenant = useDeleteTenant();
 
-  const handleAddTenant = (data: TenantCreateRequest) => {
-    createTenant.mutate(data, {
+  const handleAddTenant = (data: TenantFormValues) => {
+    createTenant.mutate({ name: data.name, parent_id: data.parent_id }, {
       onSuccess: () => {
         closeAddTenant();
         notifications.show({ title: tc("success"), message: t("tenants.success.created"), color: "green" });
@@ -243,7 +243,7 @@ export default function UserManagementPage() {
 
   const handleUpdateTenant = (data: TenantUpdateRequest) => {
     if (!selectedTenant) return;
-    updateTenant.mutate({ id: selectedTenant.ID, data }, {
+    updateTenant.mutate({ id: selectedTenant.id, data }, {
       onSuccess: () => {
         closeEditTenant();
         notifications.show({ title: tc("success"), message: t("tenants.success.updated"), color: "green" });
@@ -259,7 +259,7 @@ export default function UserManagementPage() {
 
   const handleDeleteTenantConfirm = () => {
     if (!selectedTenant) return;
-    deleteTenant.mutate(selectedTenant.ID, {
+    deleteTenant.mutate(selectedTenant.id, {
       onSuccess: () => {
         closeDeleteTenant();
         notifications.show({ title: tc("success"), message: t("tenants.success.deleted"), color: "green" });
@@ -283,7 +283,6 @@ export default function UserManagementPage() {
   const deleteRole = useDeleteTenantRole();
 
   // ── Role permissions ──
-  const { isLoading: permissionsLoading } = useTenantPermissionsQuery();
   const createPerm = useCreateTenantPermission();
   const deletePerm = useDeleteTenantPermission();
 
@@ -307,7 +306,7 @@ export default function UserManagementPage() {
 
   const handleUpdateRole = (data: TenantRoleUpdateRequest) => {
     if (!selectedRole) return;
-    updateRole.mutate({ id: selectedRole.ID, data }, {
+    updateRole.mutate({ id: selectedRole.id, data }, {
       onSuccess: () => {
         closeEditRole();
         notifications.show({ title: tc("success"), message: t("roles.success.updated"), color: "green" });
@@ -323,7 +322,7 @@ export default function UserManagementPage() {
 
   const handleDeleteRoleConfirm = () => {
     if (!selectedRole) return;
-    deleteRole.mutate(selectedRole.ID, {
+    deleteRole.mutate(selectedRole.id, {
       onSuccess: () => {
         closeDeleteRole();
         notifications.show({ title: tc("success"), message: t("roles.success.deleted"), color: "green" });
@@ -336,9 +335,10 @@ export default function UserManagementPage() {
   };
 
   const handleTogglePermission = (action: string, enabled: boolean) => {
+    if (!selectedRole) return;
     if (enabled) {
       createPerm.mutate(
-        { action, role_id: selectedRole?.ID ?? "" },
+        { roleId: selectedRole.id, actions: [action] },
         {
           onSuccess: () => {
             notifications.show({ title: tc("success"), message: t("roles.permissions.success.permissionAdded"), color: "green" });
@@ -350,17 +350,18 @@ export default function UserManagementPage() {
         }
       );
     } else {
-      const perm = permissions.find((p) => p.RoleID === (selectedRole?.ID ?? "") && p.Action === action);
-      if (!perm) return;
-      deletePerm.mutate(perm.ID, {
-        onSuccess: () => {
-          notifications.show({ title: tc("success"), message: t("roles.permissions.success.permissionRemoved"), color: "green" });
-        },
-        onError: (err: any) => {
-          const msg = err?.message || t("roles.permissions.error.permissionRemoveFailed");
-          notifications.show({ title: tc("error"), message: msg, color: "red" });
-        },
-      });
+      deletePerm.mutate(
+        { roleId: selectedRole.id, actions: [action] },
+        {
+          onSuccess: () => {
+            notifications.show({ title: tc("success"), message: t("roles.permissions.success.permissionRemoved"), color: "green" });
+          },
+          onError: (err: any) => {
+            const msg = err?.message || t("roles.permissions.error.permissionRemoveFailed");
+            notifications.show({ title: tc("error"), message: msg, color: "red" });
+          },
+        }
+      );
     }
   };
 
@@ -409,6 +410,9 @@ export default function UserManagementPage() {
             onAddDept={openAddTenant}
             onEditDept={handleEditTenant}
             onDeleteDept={handleDeleteTenant}
+            onAddAgent={openAddTenant}
+            onEditAgent={handleEditTenant}
+            onDeleteAgent={handleDeleteTenant}
             onAddRole={openAddRole}
             onEditRole={handleEditRole}
             onDeleteRole={handleDeleteRole}
@@ -425,12 +429,12 @@ export default function UserManagementPage() {
       {/* Tenant modals */}
       <AddTenantModal opened={addTenantOpened} onClose={closeAddTenant} onSave={handleAddTenant} tenants={scopedTenants} loading={createTenant.isPending} />
       <EditTenantModal opened={editTenantOpened} onClose={closeEditTenant} tenant={selectedTenant} onSave={handleUpdateTenant} tenants={scopedTenants} loading={updateTenant.isPending} />
-      <DeleteTenantModal opened={deleteTenantOpened} onClose={closeDeleteTenant} onConfirm={handleDeleteTenantConfirm} tenantName={selectedTenant?.Name ?? ""} loading={deleteTenant.isPending} />
+      <DeleteTenantModal opened={deleteTenantOpened} onClose={closeDeleteTenant} onConfirm={handleDeleteTenantConfirm} tenantName={selectedTenant?.name ?? ""} loading={deleteTenant.isPending} />
 
       {/* Role modals */}
       <AddRoleModal opened={addRoleOpened} onClose={closeAddRole} onSave={handleAddRole} loading={createRole.isPending} tenants={scopedTenants} />
       <EditRoleModal opened={editRoleOpened} onClose={closeEditRole} role={selectedRole} onSave={handleUpdateRole} loading={updateRole.isPending} tenants={scopedTenants} />
-      <DeleteRoleModal opened={deleteRoleOpened} onClose={closeDeleteRole} onConfirm={handleDeleteRoleConfirm} roleName={selectedRole?.Name ?? ""} loading={deleteRole.isPending} />
+      <DeleteRoleModal opened={deleteRoleOpened} onClose={closeDeleteRole} onConfirm={handleDeleteRoleConfirm} roleName={selectedRole?.name ?? ""} loading={deleteRole.isPending} />
     </Container>
   );
 }

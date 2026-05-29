@@ -6,12 +6,15 @@ export interface User {
   updated_at: string;
 }
 
+// Backend returns PascalCase — matches raw API response
 export interface ApiUser {
   ID: string;
   Username: string;
+  Password?: string;
   TenantID: string;
   CreatedAt: string;
   UpdatedAt: string;
+  IsExternal?: boolean;
 }
 
 export interface ApiPaginatedUserResponse {
@@ -72,6 +75,7 @@ export interface AssignmentData {
   permissions: string[];
 }
 
+/** Map PascalCase backend user → snake_case User (matches login response format) */
 function mapApiUser(api: ApiUser): User {
   return {
     id: api.ID,

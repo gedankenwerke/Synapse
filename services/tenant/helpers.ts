@@ -4,7 +4,7 @@ import type { Tenant } from "./types";
  * Returns true if the given tenant has any child tenants (i.e., is a Senior tenant).
  */
 export function isSeniorTenant(tenant: Tenant, allTenants: Tenant[]): boolean {
-  return allTenants.some((t) => t.ParentID === tenant.ID);
+  return allTenants.some((t) => t.parentID === tenant.id);
 }
 
 /**
@@ -12,8 +12,8 @@ export function isSeniorTenant(tenant: Tenant, allTenants: Tenant[]): boolean {
  */
 export function getAgentTenantIds(parentTenantId: string, allTenants: Tenant[]): string[] {
   return allTenants
-    .filter((t) => t.ParentID === parentTenantId)
-    .map((t) => t.ID);
+    .filter((t) => t.parentID === parentTenantId)
+    .map((t) => t.id);
 }
 
 /**
@@ -27,7 +27,7 @@ export function getVisibleTenantIds(
   allTenants: Tenant[],
   isSuperAdmin: boolean
 ): string[] {
-  if (isSuperAdmin) return allTenants.map((t) => t.ID);
+  if (isSuperAdmin) return allTenants.map((t) => t.id);
   const agentIds = getAgentTenantIds(currentTenantId, allTenants);
   return [currentTenantId, ...agentIds];
 }
