@@ -1,11 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { Container, Tabs, Stack, Text, Loader, Center } from "@mantine/core";
+import {
+  Container,
+  SimpleGrid,
+  Stack,
+  Text,
+  Loader,
+  Center,
+  Group,
+  Button,
+  TextInput,
+} from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { notifications } from "@mantine/notifications";
 import { useTranslations } from "next-intl";
 import { useDebouncedValue } from "@mantine/hooks";
+import { IconPlus, IconSearch } from "@tabler/icons-react";
 import { usePageGuard } from "@/hooks/usePageGuard";
 import { useAppStore } from "@/store/useAppStore";
 import { getVisibleTenantIds } from "@/services/tenant/helpers";
@@ -15,9 +26,6 @@ import { mapApiUserToUserData } from "@/services/user/types";
 import type { UserData, AssignmentData } from "@/services/user/types";
 import type { Tenant } from "@/services/tenant/types";
 import type { TenantRole } from "@/services/tenant-role/types";
-import { UserToolbar } from "./_components/UsersTab/UsersToolbar";
-import { UserTable } from "./_components/UsersTab/UsersTable";
-import { UserPagination } from "./_components/UsersTab/UsersPagination";
 import { EditUserDrawer } from "./_components/UsersTab/EditUserDrawer";
 import {
   useCreateTenantUser,
@@ -29,7 +37,6 @@ import {
   DeleteConfirmModal,
 } from "./_components/UsersTab/UserModals";
 import type { UserFormValues } from "./_components/UsersTab/UserModals";
-import { PermissionsTab } from "./_components/PermissionsTab/PermissionsTab";
 import {
   AddTenantModal,
   EditTenantModal,
@@ -62,6 +69,8 @@ import {
   useCreateTenantPermission,
   useDeleteTenantPermission,
 } from "./hooks/useTenantPermissionMutations";
+import { TenantCard } from "./_components/TenantCard/TenantCard";
+import { ActionGuard } from "@/components/ActionGuard";
 
 export default function UserManagementPage() {
   const t = useTranslations("userManagement");
@@ -71,26 +80,16 @@ export default function UserManagementPage() {
   if (!allowed) return null;
   const currentTenantId = useAppStore((s) => s.user?.tenant_id ?? "");
   const isSuperAdmin = useAppStore((s) => s.isSuperAdmin);
-  const userRole = useAppStore((s) => s.userRole);
 
-  // ── Active tab ──
-  const [activeTab, setActiveTab] = useState<string | null>("users");
-
-  // ── Users state ──
+  // ── Search ──
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch] = useDebouncedValue(searchQuery, 300);
-  const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false);
-  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
-  const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
-  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
 
+  // ── Users queries ──
   const {
     data: usersData,
     isLoading: usersLoading,
     error: queryError,
-    hasNextPage,
-    isFetchingNextPage,
-    fetchNextPage,
   } = useUsersQuery(debouncedSearch);
 
   const createUser = useCreateUser();
@@ -115,8 +114,21 @@ export default function UserManagementPage() {
   });
   const scopedTenantUsers = isSuperAdmin ? tenantUsers : tenantUsers.filter((tu) => visibleTenantIds.includes(tu.tenantID));
 
+  // ── Lookup maps ──
   const tenantMap = new Map(scopedTenants.map((t) => [t.id, t.name]));
   const roleMap = new Map(scopedRoles.map((r) => [r.id, r.name]));
+
+  // Build userMap: userId → username (needed for tenant cards)
+  const allUsers: UserData[] = (usersData?.pages.flatMap((p) => p.items.map(mapApiUserToUserData)) ?? []);
+  const userMap = new Map(allUsers.map((u) => [u.id, u.username]));
+
+  // ── Users state (modals/drawers) ──
+  const [addOpened, { open: openAdd, close: closeAdd }] = useDisclosure(false);
+  const [deleteOpened, { open: openDelete, close: closeDelete }] = useDisclosure(false);
+  const [editOpened, { open: openEdit, close: closeEdit }] = useDisclosure(false);
+  const [selectedUser, setSelectedUser] = useState<UserData | null>(null);
+
+  // Enrich users with assignments for the EditUserDrawer
   const permissionMap = new Map<string, string[]>();
   for (const p of scopedPermissions) {
     const list = permissionMap.get(p.roleID) ?? [];
@@ -124,7 +136,7 @@ export default function UserManagementPage() {
     permissionMap.set(p.roleID, list);
   }
 
-  const users: UserData[] = (usersData?.pages.flatMap((p) => p.items.map(mapApiUserToUserData)) ?? []).map((user) => {
+  const usersWithAssignments: UserData[] = allUsers.map((user) => {
     const assignments: AssignmentData[] = scopedTenantUsers
       .filter((tu) => tu.userID === user.id)
       .map((tu) => ({
@@ -137,7 +149,6 @@ export default function UserManagementPage() {
       }));
     return { ...user, assignments };
   });
-  const totalItems = usersData?.pages[0]?.total ?? users.length;
 
   const handleAddUser = (formData: UserFormValues) => {
     createUser.mutate(
@@ -154,8 +165,6 @@ export default function UserManagementPage() {
       }
     );
   };
-
-  const handleSearchChange = (value: string) => { setSearchQuery(value); };
 
   const handleEdit = (user: UserData) => { setSelectedUser(user); openEdit(); };
 
@@ -221,7 +230,6 @@ export default function UserManagementPage() {
   const [deleteTenantOpened, { open: openDeleteTenant, close: closeDeleteTenant }] = useDisclosure(false);
   const [selectedTenant, setSelectedTenant] = useState<Tenant | null>(null);
 
-  const { isLoading: tenantsLoading } = useTenantsQuery();
   const createTenant = useCreateTenant();
   const updateTenant = useUpdateTenant();
   const deleteTenant = useDeleteTenant();
@@ -277,7 +285,6 @@ export default function UserManagementPage() {
   const [deleteRoleOpened, { open: openDeleteRole, close: closeDeleteRole }] = useDisclosure(false);
   const [selectedRole, setSelectedRole] = useState<TenantRole | null>(null);
 
-  const { isLoading: rolesLoading } = useTenantRolesQuery();
   const createRole = useCreateTenantRole();
   const updateRole = useUpdateTenantRole();
   const deleteRole = useDeleteTenantRole();
@@ -334,11 +341,14 @@ export default function UserManagementPage() {
     });
   };
 
-  const handleTogglePermission = (action: string, enabled: boolean) => {
-    if (!selectedRole) return;
+  // ── Permission toggle (scoped to a role) ──
+  const [togglingRole, setTogglingRole] = useState<string | null>(null);
+
+  const handleTogglePermission = (roleId: string, action: string, enabled: boolean) => {
+    setTogglingRole(roleId);
     if (enabled) {
       createPerm.mutate(
-        { roleId: selectedRole.id, actions: [action] },
+        { roleId, actions: [action] },
         {
           onSuccess: () => {
             notifications.show({ title: tc("success"), message: t("roles.permissions.success.permissionAdded"), color: "green" });
@@ -351,7 +361,7 @@ export default function UserManagementPage() {
       );
     } else {
       deletePerm.mutate(
-        { roleId: selectedRole.id, actions: [action] },
+        { roleId, actions: [action] },
         {
           onSuccess: () => {
             notifications.show({ title: tc("success"), message: t("roles.permissions.success.permissionRemoved"), color: "green" });
@@ -365,6 +375,50 @@ export default function UserManagementPage() {
     }
   };
 
+  // ── Organize tenants by hierarchy ──
+  // Root tenant (id === "1" or parentID === "0") is excluded from the card grid
+  const ROOT_IDS = new Set(["1", "0"]);
+  const displayTenants = scopedTenants.filter((t) => !ROOT_IDS.has(t.id));
+
+  // Build ordered list: parents first, then their children (deduplicated)
+  const addedIds = new Set<string>();
+  const orderedTenants: Tenant[] = [];
+
+  // Parents = tenants that have at least one child in displayTenants
+  const parentTenants = displayTenants.filter(
+    (t) => displayTenants.some((child) => child.parentID === t.id)
+  );
+
+  for (const pt of parentTenants) {
+    if (!addedIds.has(pt.id)) {
+      orderedTenants.push(pt);
+      addedIds.add(pt.id);
+    }
+    for (const child of displayTenants.filter((t) => t.parentID === pt.id)) {
+      if (!addedIds.has(child.id)) {
+        orderedTenants.push(child);
+        addedIds.add(child.id);
+      }
+    }
+  }
+  // Add any remaining tenants not yet added (orphans or agents whose parent was excluded)
+  for (const t of displayTenants) {
+    if (!addedIds.has(t.id)) orderedTenants.push(t);
+  }
+
+  // ── Remove user from tenant ──
+  const handleRemoveUserFromTenant = (tenantUserId: string) => {
+    deleteTenantUser.mutate(tenantUserId, {
+      onSuccess: () => {
+        notifications.show({ title: tc("success"), message: "User removed from tenant", color: "green" });
+      },
+      onError: (err: any) => {
+        const msg = err?.message || "Failed to remove user";
+        notifications.show({ title: tc("error"), message: msg, color: "red" });
+      },
+    });
+  };
+
   if (queryError) {
     return (
       <Container size="xl" py="md">
@@ -375,51 +429,75 @@ export default function UserManagementPage() {
 
   return (
     <Container size="xl" py="md">
+      {/* Page title */}
       <Text fz="xl" fw={700} mb="md">{t("title")}</Text>
 
-      <Tabs value={activeTab} onChange={setActiveTab}>
-        <Tabs.List mb="md">
-          <Tabs.Tab value="users">{t("tab.users")}</Tabs.Tab>
-          {userRole === "superadmin" && (
-            <Tabs.Tab value="permissions">{t("tab.roles")}</Tabs.Tab>
-          )}
-        </Tabs.List>
+      {/* Toolbar */}
+      <Group justify="space-between" mb="md">
+        <TextInput
+          placeholder="Search users..."
+          leftSection={<IconSearch size={16} />}
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.currentTarget.value)}
+          w={280}
+        />
+        <Group gap="sm">
+          <ActionGuard action="CreateTenant">
+            <Button variant="light" size="xs" leftSection={<IconPlus size={16} />} onClick={openAddTenant}>
+              Add Tenant
+            </Button>
+          </ActionGuard>
+          <ActionGuard action="CreateUser">
+            <Button size="xs" leftSection={<IconPlus size={16} />} onClick={openAdd}>
+              Add User
+            </Button>
+          </ActionGuard>
+        </Group>
+      </Group>
 
-        <Tabs.Panel value="users">
-          <Stack gap="md">
-            <UserToolbar
-              searchValue={searchQuery}
-              onSearchChange={handleSearchChange}
-              onAddUser={openAdd}
-            />
-            <UserTable data={users} isLoading={usersLoading} onEdit={handleEdit} onDelete={handleDelete} />
-            <UserPagination totalItems={totalItems} hasNextPage={hasNextPage ?? false} isFetchingNextPage={isFetchingNextPage} fetchNextPage={fetchNextPage} />
-          </Stack>
-        </Tabs.Panel>
+      {/* Tenant card grid */}
+      {usersLoading ? (
+        <Center py="xl"><Loader /></Center>
+      ) : (
+        <SimpleGrid
+          cols={{ base: 1, sm: 2, lg: 3 }}
+          spacing="md"
+        >
+          {orderedTenants.map((tenant) => {
+            const isChild = parentTenants.some((p) => tenant.parentID === p.id);
+            const tenantTuList = scopedTenantUsers.filter((tu) => tu.tenantID === tenant.id);
+            const tenantRoles = scopedRoles.filter((r) => r.tenantID === tenant.id);
+            const tenantPerms = scopedPermissions.filter((p) =>
+              tenantRoles.some((r) => r.id === p.roleID)
+            );
+            const parentName = isChild
+              ? tenantMap.get(tenant.parentID) ?? undefined
+              : undefined;
 
-        <Tabs.Panel value="permissions">
-          {userRole === "superadmin" && (
-          <PermissionsTab
-            tenants={scopedTenants}
-            roles={scopedRoles}
-            permissions={scopedPermissions}
-            isLoading={tenantsLoading || rolesLoading}
-            permissionsLoading={permissionsLoading}
-            isToggling={createPerm.isPending || deletePerm.isPending}
-            onTogglePermission={handleTogglePermission}
-            onAddDept={openAddTenant}
-            onEditDept={handleEditTenant}
-            onDeleteDept={handleDeleteTenant}
-            onAddAgent={openAddTenant}
-            onEditAgent={handleEditTenant}
-            onDeleteAgent={handleDeleteTenant}
-            onAddRole={openAddRole}
-            onEditRole={handleEditRole}
-            onDeleteRole={handleDeleteRole}
-          />
-          )}
-        </Tabs.Panel>
-      </Tabs>
+            return (
+              <TenantCard
+                key={tenant.id}
+                tenant={tenant}
+                parentName={parentName}
+                tenantUsers={tenantTuList}
+                roles={tenantRoles}
+                permissions={tenantPerms}
+                roleMap={roleMap}
+                userMap={userMap}
+                isToggling={togglingRole !== null && (createPerm.isPending || deletePerm.isPending)}
+                onTogglePermission={(roleId, action, enabled) => handleTogglePermission(roleId, action, enabled)}
+                onEditTenant={handleEditTenant}
+                onDeleteTenant={handleDeleteTenant}
+                onAddUser={openAdd}
+                onRemoveUser={handleRemoveUserFromTenant}
+                onAddRole={openAddRole}
+                onEditRole={handleEditRole}
+                onDeleteRole={handleDeleteRole}
+              />
+            );
+          })}
+        </SimpleGrid>
+      )}
 
       {/* Users modals */}
       <AddUserModal opened={addOpened} onClose={closeAdd} onSave={handleAddUser} loading={createUser.isPending} />
