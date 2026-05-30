@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { policy } from "../services/policy";
 import { PolicyCatalogItem, PolicyName, POLICY_CATALOG } from "../services/policy/types";
 import { tenantUser } from "../services/tenant-user";
+import { tenantPermission } from "../services/tenant-permission";
 import { useAppStore } from "./useAppStore";
 import { useRolePermissionCache } from "./useRolePermissionCache";
 
@@ -28,6 +29,12 @@ function localPolicies(): PolicyCatalogItem[] {
     SuperAdminOnly: val.SuperAdminOnly,
   }));
 }
+
+/** Minimum pages visible when permissions are loading or unavailable.
+ *  Dashboard is always shown as the landing page. */
+const MINIMUM_VISIBLE_POLICIES: PolicyName[] = [
+  "SearchTransactionHistory", // Dashboard
+];
 
 export const usePermissionStore = create<PermissionState>()((set, get) => ({
   policies: [],
@@ -65,23 +72,44 @@ export const usePermissionStore = create<PermissionState>()((set, get) => ({
     }
 
     set({ isLoading: true, error: null });
-    try {
-      // Step 1: Get the user's role assignments via tenant-users
-      const tenantUsers = await tenantUser.list({ user_id: user.id });
-      const roleIds = tenantUsers.map((tu) => tu.TenantRoleID);
 
-      if (roleIds.length === 0) {
-        set({ userActions: [], isLoading: false });
+    // Step 1: Get the user's role assignments via tenant-users
+    let roleIds: string[] = [];
+    try {
+      const tenantUsers = await tenantUser.list({ user_id: user.id });
+      roleIds = tenantUsers.map((tu) => tu.TenantRoleID);
+    } catch {
+      // Non-superadmin may get 403; continue without role IDs
+    }
+
+    if (roleIds.length === 0) {
+      // No role assignments found or accessible — canSeePage will show minimum pages
+      set({ userActions: [], isLoading: false });
+      return;
+    }
+
+    // Step 2: Check cache first (fast, no network)
+    const cachedActions = useRolePermissionCache.getState().getActionsForRoles(roleIds);
+    if (cachedActions.length > 0) {
+      set({ userActions: cachedActions, isLoading: false });
+      return;
+    }
+
+    // Step 3: Try to fetch all tenant permissions and seed the cache
+    try {
+      const allPermissions = await tenantPermission.list();
+      if (Array.isArray(allPermissions) && allPermissions.length > 0) {
+        useRolePermissionCache.getState().seedFromPermissions(allPermissions);
+        const actions = useRolePermissionCache.getState().getActionsForRoles(roleIds);
+        set({ userActions: actions, isLoading: false });
         return;
       }
-
-      // Step 2: Read permissions from the role permission cache
-      // (populated when superadmin logged in on this browser)
-      const cachedActions = useRolePermissionCache.getState().getActionsForRoles(roleIds);
-      set({ userActions: cachedActions, isLoading: false });
-    } catch (err: any) {
-      set({ userActions: [], error: String(err), isLoading: false });
+    } catch {
+      // 403 or other error; fall through to empty default
     }
+
+    // Step 4: No permissions accessible — canSeePage will show minimum pages
+    set({ userActions: [], isLoading: false });
   },
 
   refreshPermissions: async () => {
@@ -122,6 +150,10 @@ export const usePermissionStore = create<PermissionState>()((set, get) => ({
     const policyItem = policies.find((p) => p.Name === name) ?? POLICY_CATALOG[name];
     if (!policyItem) return false;
     if (policyItem.SuperAdminOnly) return false;
+    // During loading or when permissions couldn't be resolved, show only minimum pages
+    if (get().isLoading || get().userActions.length === 0) {
+      return MINIMUM_VISIBLE_POLICIES.includes(name);
+    }
     return get().userActions.includes(name);
   },
 }));
