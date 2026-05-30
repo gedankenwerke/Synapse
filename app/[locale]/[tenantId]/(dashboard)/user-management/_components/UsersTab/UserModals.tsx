@@ -5,20 +5,24 @@ import {
   Modal,
   SimpleGrid,
   TextInput,
+  Select,
   Button,
   Group,
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
+import type { TenantRole } from "@/services/tenant-role/types";
 
 export interface UserFormValues {
   username: string;
   password: string;
+  roleId: string;
 }
 
 const defaultFormValues: UserFormValues = {
   username: "",
   password: "",
+  roleId: "",
 };
 
 interface AddUserModalProps {
@@ -26,9 +30,10 @@ interface AddUserModalProps {
   onClose: () => void;
   onSave: (data: UserFormValues) => void;
   loading?: boolean;
+  roles: TenantRole[];
 }
 
-export function AddUserModal({ opened, onClose, onSave, loading }: AddUserModalProps) {
+export function AddUserModal({ opened, onClose, onSave, loading, roles }: AddUserModalProps) {
   const t = useTranslations("userManagement");
   const tc = useTranslations("common");
 
@@ -39,8 +44,15 @@ export function AddUserModal({ opened, onClose, onSave, loading }: AddUserModalP
         val.trim().length > 0 ? null : t("validation.usernameRequired"),
       password: (val) =>
         val.trim().length > 0 ? null : t("validation.passwordRequired"),
+      roleId: (val) =>
+        val.trim().length > 0 ? null : t("validation.roleRequired"),
     },
   });
+
+  const roleOptions = roles.map((role) => ({
+    value: role.ID,
+    label: role.Name,
+  }));
 
   const handleSubmit = (values: UserFormValues) => {
     onSave(values);
@@ -63,6 +75,14 @@ export function AddUserModal({ opened, onClose, onSave, loading }: AddUserModalP
             {...form.getInputProps("password")}
           />
         </SimpleGrid>
+        <Select
+          label={t("modal.roleLabel")}
+          placeholder={t("modal.rolePlaceholder")}
+          data={roleOptions}
+          {...form.getInputProps("roleId")}
+          searchable
+          mt="md"
+        />
         <Group justify="flex-end" mt="xl">
           <Button variant="default" onClick={onClose} disabled={loading}>
             {tc("cancel")}

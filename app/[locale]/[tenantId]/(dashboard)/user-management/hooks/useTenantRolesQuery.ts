@@ -5,6 +5,6 @@ export function useTenantRolesQuery() {
   return useQuery({
     queryKey: ["tenant-roles"],
     queryFn: () => tenantRole.list(),
-    staleTime: 60_000,
+    staleTime: 0,
   });
 }

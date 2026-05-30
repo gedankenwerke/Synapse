@@ -44,6 +44,8 @@ export const POLICY_CATALOG = {
   SearchBankStatement: { Detail: "ค้นหาสมุดบัญชี", SuperAdminOnly: false },
   DeleteTenantUser: { Detail: "ลบผู้ใช้เทนแนนท์", SuperAdminOnly: false },
   CreateTenantUser: { Detail: "สร้างผู้ใช้เทนแนนท์", SuperAdminOnly: false },
+  AssignPermissions: { Detail: "กำหนดสิทธิ์ให้บทบาท", SuperAdminOnly: false },
+  DeassignPermissions: { Detail: "ลบสิทธิ์จากบทบาท", SuperAdminOnly: false },
 } as const;
 
 export type PolicyName = keyof typeof POLICY_CATALOG;

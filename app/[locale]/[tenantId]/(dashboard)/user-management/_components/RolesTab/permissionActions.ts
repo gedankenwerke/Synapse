@@ -12,6 +12,8 @@ export const PERMISSION_ACTIONS = [
   "GetTenantRole",
   "UpdateTenantRole",
   "DeleteTenantRole",
+  "AssignPermissions",
+  "DeassignPermissions",
   "CreateTenantPermission",
   "ListTenantPermissions",
   "GetTenantPermission",
@@ -63,6 +65,8 @@ export const PERMISSION_CATEGORIES: PermissionCategory[] = [
       "GetTenantRole",
       "UpdateTenantRole",
       "DeleteTenantRole",
+      "AssignPermissions",
+      "DeassignPermissions",
     ],
   },
   {

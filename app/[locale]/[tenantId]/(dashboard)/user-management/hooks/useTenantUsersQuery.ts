@@ -14,6 +14,6 @@ export function useTenantUsersQuery(params?: TenantUsersQueryParams) {
         ...(params?.tenantId && { tenant_id: params.tenantId }),
         ...(params?.userId && { user_id: params.userId }),
       }),
-    staleTime: 60_000,
+    staleTime: 0,
   });
 }

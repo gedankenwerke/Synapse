@@ -8,6 +8,7 @@ export function useCreateUser() {
     mutationFn: (data: CreateUserPayload) => userService.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["tenant-users"] });
     },
   });
 }
@@ -19,6 +20,7 @@ export function useUpdateUser() {
       userService.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["tenant-users"] });
     },
   });
 }
@@ -29,6 +31,7 @@ export function useDeleteUser() {
     mutationFn: (id: string) => userService.remove(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["tenant-users"] });
     },
   });
 }

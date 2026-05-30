@@ -43,6 +43,7 @@ import {
   useDeleteUser,
 } from "./hooks/useUserMutations";
 import { mapApiUserToUserData } from "@/services/user/types";
+import { tenantUser } from "@/services/tenant-user";
 import { useTenantRolesQuery } from "./hooks/useTenantRolesQuery";
 
 export default function UserManagementPage() {
@@ -87,6 +88,7 @@ export default function UserManagementPage() {
 
   // ── Roles (needed for user assignment enrichment) ──
   const { data: roles = [] } = useTenantRolesQuery();
+  const tenantRoles = roles.filter((r) => r.TenantID === tenantId);
 
   // ── User data (filtered by tenant at API level) ──
   const effectiveTenantId = showTenantCards ? null : tenantId;
@@ -230,10 +232,21 @@ export default function UserManagementPage() {
   };
 
   const handleAddUser = (values: UserFormValues) => {
+    // Step 1: Create user, Step 2: Assign role via tenant-user
     createUser.mutate(
       { username: values.username, password: values.password, tenant_id: tenantId },
       {
-        onSuccess: () => {
+        onSuccess: (newUser) => {
+          const userId = newUser?.id;
+          if (userId && values.roleId) {
+            tenantUser.create({
+              tenant_id: tenantId,
+              user_id: userId,
+              tenant_role_id: values.roleId,
+            }).catch(() => {
+              // Best effort — user is created but role assignment failed
+            });
+          }
           closeAdd();
           notifications.show({ title: tc("success"), message: t("success.userAdded"), color: "green" });
         },
@@ -371,7 +384,7 @@ export default function UserManagementPage() {
       <ViewUserModal opened={viewOpened} onClose={closeView} user={selectedUser} onEditPassword={(user) => { setSelectedUser(user); openEdit(); }} />
       <EditUserModal opened={editOpened} onClose={closeEdit} user={selectedUser} onSave={handleSave} onChangePassword={handleChangePassword} loading={updateUser.isPending} passwordLoading={updateUser.isPending} tenants={scopedTenants} roles={roles} />
       <DeleteConfirmModal opened={deleteOpened} onClose={closeDelete} onConfirm={handleDeleteConfirm} userName={selectedUser?.username ?? ""} loading={deleteUser.isPending} />
-      <AddUserModal opened={addOpened} onClose={closeAdd} onSave={handleAddUser} loading={createUser.isPending} />
+      <AddUserModal opened={addOpened} onClose={closeAdd} onSave={handleAddUser} loading={createUser.isPending} roles={tenantRoles} />
     </Container>
   );
 }

@@ -1,0 +1,7 @@
+  #  │    Username    │ Password  │ Role  │
+  ├─────┼────────────────┼───────────┼───────┤
+  │ 1   │ testcorp_admin │ admin1234 │ admin │
+  ├─────┼────────────────┼───────────┼───────┤
+  │ 2   │ testcorp_user1 │ user1234  │ admin │
+  ├─────┼────────────────┼───────────┼───────┤
+  │ 3   │ testcorp_user2 │ user1234  │ admin 
