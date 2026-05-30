@@ -1,17 +1,25 @@
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { transaction } from "@/services/transaction";
 import { encodeSearch } from "@/utils/encodeSearch";
+import { useTenantClientIds } from "@/hooks/useTenantClientIds";
+import type { TransactionItem } from "@/services/transaction/types";
 
 const PAGE_LIMIT = 25;
+
+function filterByTenant(items: TransactionItem[], clientIds: Set<string>): TransactionItem[] {
+  if (clientIds.size === 0) return items; // SuperAdmin: show all
+  return items.filter((item) => clientIds.has(item.u_client_id));
+}
 
 export function useTransactionQuery(
   search: string,
   startDateTime: string,
   endDateTime: string
 ) {
+  const { clientIds, isLoading: isTenantLoading } = useTenantClientIds();
   const isSearch = search.trim().length > 0;
 
-  return useInfiniteQuery({
+  const query = useInfiniteQuery({
     queryKey: ["transaction", search, startDateTime, endDateTime],
     queryFn: ({ pageParam }) => {
       const after = pageParam || (isSearch ? encodeSearch(search) : "");
@@ -26,10 +34,24 @@ export function useTransactionQuery(
     initialPageParam: "",
     getNextPageParam: (lastPage) =>
       lastPage.after !== "" ? lastPage.after : undefined,
-    maxPages: 10, // limit cached pages to prevent unbounded memory growth
-    // Poll for new data every 5 seconds when not searching
-    // structuralSharing (enabled globally) prevents unnecessary re-renders
-    // when data hasn't actually changed
+    maxPages: 10,
     refetchInterval: isSearch ? false : 5000,
+    enabled: !isTenantLoading,
   });
+
+  // Apply tenant filter to all pages
+  const filteredData = query.data
+    ? {
+        ...query.data,
+        pages: query.data.pages.map((page) => ({
+          ...page,
+          items: filterByTenant(page.items, clientIds),
+        })),
+      }
+    : undefined;
+
+  return {
+    ...query,
+    data: filteredData,
+  };
 }

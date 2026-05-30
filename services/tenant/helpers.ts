@@ -17,10 +17,23 @@ export function getAgentTenantIds(parentTenantId: string, allTenants: Tenant[]):
 }
 
 /**
+ * Recursively returns ALL descendant tenant IDs (children, grandchildren, etc.).
+ */
+export function getAllDescendantTenantIds(parentId: string, allTenants: Tenant[]): string[] {
+  const directChildren = allTenants.filter((t) => t.ParentID === parentId);
+  const result: string[] = [];
+  for (const child of directChildren) {
+    result.push(child.ID);
+    result.push(...getAllDescendantTenantIds(child.ID, allTenants));
+  }
+  return result;
+}
+
+/**
  * Returns the list of tenant IDs visible to the current user.
- * - Senior tenant user: own tenant + all Agent tenants under it
- * - Agent tenant user: only own tenant
  * - SuperAdmin: all tenants
+ * - Senior: own tenant + ALL descendants (children, grandchildren, etc.)
+ * - Agent: only own tenant
  */
 export function getVisibleTenantIds(
   currentTenantId: string,
@@ -28,6 +41,24 @@ export function getVisibleTenantIds(
   isSuperAdmin: boolean
 ): string[] {
   if (isSuperAdmin) return allTenants.map((t) => t.ID);
-  const agentIds = getAgentTenantIds(currentTenantId, allTenants);
-  return [currentTenantId, ...agentIds];
+  const descendantIds = getAllDescendantTenantIds(currentTenantId, allTenants);
+  return [currentTenantId, ...descendantIds];
+}
+
+/**
+ * Maps visible tenant IDs to their ClientID values.
+ * Returns a Set for O(1) lookup when filtering bank/transaction data.
+ * Returns empty Set for SuperAdmin (meaning "show all", no filtering needed).
+ */
+export function getVisibleClientIds(
+  allTenants: Tenant[],
+  visibleTenantIds: string[]
+): Set<string> {
+  const clientIds = new Set<string>();
+  for (const tenant of allTenants) {
+    if (visibleTenantIds.includes(tenant.ID) && tenant.ClientID) {
+      clientIds.add(tenant.ClientID);
+    }
+  }
+  return clientIds;
 }

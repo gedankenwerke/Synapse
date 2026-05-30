@@ -3,6 +3,7 @@ import { transaction } from "@/services/transaction";
 import { netBalance } from "@/services/net-balance";
 import { userService } from "@/services/user";
 import { useAppStore } from "@/store/useAppStore";
+import { useTenantClientIds } from "@/hooks/useTenantClientIds";
 import type { DashboardStatCard, DashboardTransaction, DashboardAreaDatum, DashboardDonutDatum } from "@/services/dashboard/types";
 import { formatBaht } from "@/services/dashboard/types";
 
@@ -36,6 +37,7 @@ function getWeekRange() {
 
 export function useDashboardData() {
   const tenantId = useAppStore((s) => s.user?.tenant_id ?? "1");
+  const { clientIds, isLoading: isTenantLoading } = useTenantClientIds();
 
   const today = getTodayRange();
   const week = getWeekRange();
@@ -86,17 +88,26 @@ export function useDashboardData() {
     staleTime: 60_000,
   });
 
-  const isLoading = todayTxQuery.isLoading || weekTxQuery.isLoading || netBalanceQuery.isLoading || usersQuery.isLoading;
+  const isLoading = isTenantLoading || todayTxQuery.isLoading || weekTxQuery.isLoading || netBalanceQuery.isLoading || usersQuery.isLoading;
   const error = todayTxQuery.error || weekTxQuery.error || netBalanceQuery.error || usersQuery.error;
 
+  // Tenant filter helper: empty set = show all (SuperAdmin)
+  const belongsToTenant = (uClientId: string) => clientIds.size === 0 || clientIds.has(uClientId);
+  const netBelongsToTenant = (clientId: string) => clientIds.size === 0 || clientIds.has(clientId);
+
+  // Filtered transaction items
+  const todayItems = (todayTxQuery.data?.items ?? []).filter((t) => belongsToTenant(t.u_client_id));
+  const weekItems = (weekTxQuery.data?.items ?? []).filter((t) => belongsToTenant(t.u_client_id));
+  const netBalanceItems = (netBalanceQuery.data?.items ?? []).filter((b) => netBelongsToTenant(b.client_id));
+
   // Compute stat cards
-  const todayDeposits = (todayTxQuery.data?.items ?? [])
+  const todayDeposits = todayItems
     .filter((t) => t.trans_type === "Deposit")
     .reduce((sum, t) => sum + t.dp_wd_amt, 0);
-  const todayWithdrawals = (todayTxQuery.data?.items ?? [])
+  const todayWithdrawals = todayItems
     .filter((t) => t.trans_type === "Withdraw")
     .reduce((sum, t) => sum + t.dp_wd_amt, 0);
-  const totalBalance = (netBalanceQuery.data?.items ?? [])
+  const totalBalance = netBalanceItems
     .reduce((sum, b) => sum + b.acct_deposit - b.acct_withdraw, 0);
   const activeUsers = usersQuery.data?.total ?? 0;
 
@@ -109,7 +120,6 @@ export function useDashboardData() {
 
   // Compute area chart data (last 7 days, grouped by date)
   const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const weekItems = weekTxQuery.data?.items ?? [];
 
   // Group by date
   const dayMap = new Map<string, { Deposits: number; Withdrawals: number }>();
@@ -157,7 +167,7 @@ export function useDashboardData() {
   }));
 
   // Compute recent transactions (last 10)
-  const recentTransactions: DashboardTransaction[] = (todayTxQuery.data?.items ?? [])
+  const recentTransactions: DashboardTransaction[] = todayItems
     .slice(0, 10)
     .map((t) => ({
       id: String(t.dpwd_trans_id),

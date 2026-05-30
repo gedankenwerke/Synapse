@@ -2,6 +2,9 @@ export interface Tenant {
   ID: string;
   ParentID: string;
   Name: string;
+  ClientID: string;
+  ParentClientID: string;
+  IsExternal: boolean;
   CreatedAt: string;
   UpdatedAt: string;
 }
