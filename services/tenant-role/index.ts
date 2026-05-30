@@ -60,11 +60,12 @@ export const tenantRole = {
     const data = (response as unknown as ResponseWrapper<RolePermissionRecord[]>).data;
     const records = Array.isArray(data) ? data : [];
 
-    // Update cache: merge new actions into existing cache for this role
+    // Update cache using response data (authoritative role permissions after assignment)
     if (records.length > 0) {
       const cache = useRolePermissionCache.getState();
+      const responseActions = records.map((r) => r.Action);
       const existing = cache.getRoleActions(roleId);
-      const merged = Array.from(new Set([...existing, ...actions]));
+      const merged = Array.from(new Set([...existing, ...responseActions]));
       cache.setRoleActions(roleId, merged);
     }
 

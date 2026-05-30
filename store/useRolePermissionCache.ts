@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
+import type { TenantPermission } from "@/services/tenant-permission/types";
 
 /**
  * Role Permission Cache
@@ -7,9 +8,9 @@ import { persist, createJSONStorage } from "zustand/middleware";
  * Problem: The API has no GET endpoint for reading a role's assigned permissions.
  * Non-superadmin users get 403 on /policies, /tenant-roles, /tenant-permissions.
  *
- * Solution: When superadmin fetches or assigns permissions, we cache the
- * role→actions mapping in localStorage. When non-superadmin logs in,
- * we read from this cache to determine what sidebar items to show.
+ * Solution: Cache role→actions mappings from multiple sources:
+ * 1. When superadmin assigns/deassigns permissions via the UI
+ * 2. When any user fetches /tenant-permissions (seeds all role-permission pairs)
  *
  * Cache miss → empty actions (safer than granting everything).
  * The backend enforces real permissions on every API call regardless.
@@ -27,6 +28,9 @@ interface RolePermissionCacheState {
 
   /** Get actions for multiple role IDs (union of all) */
   getActionsForRoles: (roleIds: string[]) => string[];
+
+  /** Seed the cache from a list of TenantPermission records (merges with existing) */
+  seedFromPermissions: (permissions: TenantPermission[]) => void;
 
   /** Clear the entire cache */
   clearCache: () => void;
@@ -57,6 +61,20 @@ export const useRolePermissionCache = create<RolePermissionCacheState>()(
         }
         return Array.from(allActions);
       },
+
+      seedFromPermissions: (permissions) =>
+        set((state) => {
+          const newCache = { ...state.cache };
+          for (const perm of permissions) {
+            if (!newCache[perm.RoleID]) {
+              newCache[perm.RoleID] = [];
+            }
+            if (!newCache[perm.RoleID].includes(perm.Action)) {
+              newCache[perm.RoleID] = [...newCache[perm.RoleID], perm.Action];
+            }
+          }
+          return { cache: newCache };
+        }),
 
       clearCache: () => set({ cache: {} }),
     }),

@@ -83,9 +83,15 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
               sameSite: "Strict",
             });
           }
-          const tenants = await tenant.list();
-          const role = deriveRole(user, tenants);
-          setUserRole(role);
+          try {
+            const tenants = await tenant.list();
+            const role = deriveRole(user, tenants);
+            setUserRole(role);
+          } catch {
+            // Non-superadmin can't list all tenants — derive role without tenant hierarchy
+            const role = deriveRole(user, undefined);
+            setUserRole(role);
+          }
         }
       } catch (err: any) {
         // Only logout if token is actually invalid (401), not on server errors
