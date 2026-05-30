@@ -327,7 +327,7 @@ export default function UserManagementPage() {
           <Tabs.Tab value="users" leftSection={<IconUsers size={16} />}>
             {t("tab.users")}
           </Tabs.Tab>
-          {isSuperAdmin && (
+          {!showTenantCards && (
             <Tabs.Tab value="roles" leftSection={<IconShield size={16} />}>
               {t("tab.roles")}
             </Tabs.Tab>
@@ -360,9 +360,9 @@ export default function UserManagementPage() {
           </Stack>
         </Tabs.Panel>
 
-        {isSuperAdmin && (
+        {!showTenantCards && (
           <Tabs.Panel value="roles">
-            <RolesTab tenants={scopedTenants} />
+            <RolesTab tenantId={tenantId} />
           </Tabs.Panel>
         )}
       </Tabs>

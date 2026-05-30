@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Modal, Stack, Text, Badge, Group, Button, PasswordInput, ActionIcon } from "@mantine/core";
+import { Modal, Stack, Text, Badge, Group, Button, Divider } from "@mantine/core";
 import { IconKey } from "@tabler/icons-react";
 import { formatThaiDate } from "../utils/formatDate";
 import type { UserData } from "@/services/user/types";
@@ -47,34 +47,25 @@ export function ViewUserModal({ opened, onClose, user, onEditPassword }: ViewUse
           )}
         </div>
 
-        <Group justify="space-between" align="flex-end">
-          <div style={{ flex: 1 }}>
-            <Text size="xs" c="dimmed">{t("password")}</Text>
-            <PasswordInput
-              value={user.password || "—"}
-              readOnly
-              variant="filled"
-              radius="sm"
-            />
-          </div>
-          {onEditPassword && (
-            <ActionIcon
-              variant="subtle"
-              color="orange"
-              size="lg"
-              onClick={() => onEditPassword(user)}
-              aria-label={t("modal.changePassword")}
-              mt="xs"
-            >
-              <IconKey size={18} />
-            </ActionIcon>
-          )}
-        </Group>
-
         <div>
           <Text size="xs" c="dimmed">{t("colCreated")}</Text>
           <Text fw={500}>{formatThaiDate(user.createdAt)}</Text>
         </div>
+
+        {onEditPassword && (
+          <>
+            <Divider my="xs" />
+            <Button
+              variant="light"
+              color="orange"
+              leftSection={<IconKey size={16} />}
+              onClick={() => onEditPassword(user)}
+              fullWidth
+            >
+              {t("modal.changePassword")}
+            </Button>
+          </>
+        )}
 
         <Group justify="flex-end" mt="xl">
           <Button variant="default" onClick={onClose}>

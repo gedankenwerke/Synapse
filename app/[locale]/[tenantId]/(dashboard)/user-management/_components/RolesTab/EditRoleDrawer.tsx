@@ -10,13 +10,11 @@ import {
   Checkbox,
   Stack,
   Group,
-  Badge,
   Loader,
   Center,
 } from "@mantine/core";
 import { notifications } from "@mantine/notifications";
 import type { TenantRole } from "@/services/tenant-role/types";
-import type { Tenant } from "@/services/tenant/types";
 import { useRolePermissionCache } from "@/store/useRolePermissionCache";
 import { useAssignPermissions, useDeassignPermissions } from "../../hooks/useTenantRoleMutations";
 import { PERMISSION_CATEGORIES } from "./permissionActions";
@@ -25,14 +23,12 @@ interface EditRoleDrawerProps {
   opened: boolean;
   onClose: () => void;
   role: TenantRole | null;
-  tenants: Tenant[];
 }
 
 export function EditRoleDrawer({
   opened,
   onClose,
   role,
-  tenants,
 }: EditRoleDrawerProps) {
   const t = useTranslations("userManagement.roles.permissions");
   const tr = useTranslations("userManagement.roles");
@@ -58,9 +54,6 @@ export function EditRoleDrawer({
   }, [role?.ID, opened]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!role) return null;
-
-  const tenantMap = new Map((tenants ?? []).map((t) => [t.ID, t.Name]));
-  const tenantName = tenantMap.get(role.TenantID) ?? "—";
 
   const isToggling = assignMutation.isPending || deassignMutation.isPending;
 
@@ -128,7 +121,6 @@ export function EditRoleDrawer({
       <ScrollArea h="calc(100vh - 80px)" offsetScrollbars>
         <Group justify="space-between" mb="xs">
           <Text fw={700} size="lg">{role.Name}</Text>
-          <Badge variant="light">{tenantName}</Badge>
         </Group>
         <Text size="sm" c="dimmed" mb="sm">
           {t("title", { role: role.Name })}

@@ -5,31 +5,23 @@ import {
   Modal,
   SimpleGrid,
   TextInput,
-  Select,
   Button,
   Group,
   Text,
 } from "@mantine/core";
 import { useForm } from "@mantine/form";
 import type { TenantRole } from "@/services/tenant-role/types";
-import type { Tenant } from "@/services/tenant/types";
 
 export interface RoleFormValues {
   name: string;
   tenant_id: string;
 }
 
-const defaultFormValues: RoleFormValues = {
-  name: "",
-  tenant_id: "",
-};
-
 interface AddRoleModalProps {
   opened: boolean;
   onClose: () => void;
   onSave: (data: RoleFormValues) => void;
   loading?: boolean;
-  tenants: Tenant[];
 }
 
 export function AddRoleModal({
@@ -37,28 +29,21 @@ export function AddRoleModal({
   onClose,
   onSave,
   loading,
-  tenants,
 }: AddRoleModalProps) {
   const t = useTranslations("userManagement.roles");
   const tc = useTranslations("common");
 
-  const form = useForm<RoleFormValues>({
-    initialValues: { ...defaultFormValues },
+  const form = useForm<{ name: string }>({
+    initialValues: { name: "" },
     validate: {
       name: (val) =>
         val.trim().length > 0 ? null : t("validation.nameRequired"),
-      tenant_id: (val) =>
-        val.trim().length > 0 ? null : t("validation.tenantRequired"),
     },
   });
 
-  const tenantOptions = tenants.map((tenant) => ({
-    value: tenant.ID,
-    label: tenant.Name,
-  }));
-
-  const handleSubmit = (values: RoleFormValues) => {
-    onSave(values);
+  const handleSubmit = (values: { name: string }) => {
+    // tenant_id is set by parent — not needed in form
+    onSave({ name: values.name, tenant_id: "" });
     form.reset();
   };
 
@@ -70,12 +55,6 @@ export function AddRoleModal({
             label={t("modal.nameLabel")}
             placeholder={t("modal.namePlaceholder")}
             {...form.getInputProps("name")}
-          />
-          <Select
-            label={t("modal.tenantLabel")}
-            placeholder={t("modal.tenantPlaceholder")}
-            data={tenantOptions}
-            {...form.getInputProps("tenant_id")}
           />
         </SimpleGrid>
         <Group justify="flex-end" mt="xl">
@@ -97,7 +76,6 @@ interface EditRoleModalProps {
   onSave: (data: RoleFormValues) => void;
   loading?: boolean;
   role: TenantRole | null;
-  tenants: Tenant[];
 }
 
 export function EditRoleModal({
@@ -106,31 +84,20 @@ export function EditRoleModal({
   onSave,
   loading,
   role,
-  tenants,
 }: EditRoleModalProps) {
   const t = useTranslations("userManagement.roles");
   const tc = useTranslations("common");
 
-  const form = useForm<RoleFormValues>({
-    initialValues: {
-      name: role?.Name ?? "",
-      tenant_id: role?.TenantID ?? "",
-    },
+  const form = useForm<{ name: string }>({
+    initialValues: { name: role?.Name ?? "" },
     validate: {
       name: (val) =>
         val.trim().length > 0 ? null : t("validation.nameRequired"),
-      tenant_id: (val) =>
-        val.trim().length > 0 ? null : t("validation.tenantRequired"),
     },
   });
 
-  const tenantOptions = tenants.map((tenant) => ({
-    value: tenant.ID,
-    label: tenant.Name,
-  }));
-
-  const handleSubmit = (values: RoleFormValues) => {
-    onSave(values);
+  const handleSubmit = (values: { name: string }) => {
+    onSave({ name: values.name, tenant_id: "" });
   };
 
   return (
@@ -141,12 +108,6 @@ export function EditRoleModal({
             label={t("modal.nameLabel")}
             placeholder={t("modal.namePlaceholder")}
             {...form.getInputProps("name")}
-          />
-          <Select
-            label={t("modal.tenantLabel")}
-            placeholder={t("modal.tenantPlaceholder")}
-            data={tenantOptions}
-            {...form.getInputProps("tenant_id")}
           />
         </SimpleGrid>
         <Group justify="flex-end" mt="xl">

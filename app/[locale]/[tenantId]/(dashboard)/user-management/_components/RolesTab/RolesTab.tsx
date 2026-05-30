@@ -13,12 +13,10 @@ import {
   Center,
   Loader,
   Stack,
-  Select,
 } from "@mantine/core";
 import { IconSearch, IconPlus, IconPencil, IconTrash, IconEdit } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import { useDisclosure } from "@mantine/hooks";
-import type { Tenant } from "@/services/tenant/types";
 import type { TenantRole } from "@/services/tenant-role/types";
 import { EditRoleDrawer } from "./EditRoleDrawer";
 import {
@@ -46,10 +44,10 @@ function formatThaiDate(iso: string): string {
 }
 
 interface RolesTabProps {
-  tenants: Tenant[];
+  tenantId: string;
 }
 
-export function RolesTab({ tenants }: RolesTabProps) {
+export function RolesTab({ tenantId }: RolesTabProps) {
   const t = useTranslations("userManagement");
   const tr = useTranslations("userManagement.roles");
   const tc = useTranslations("common");
@@ -60,7 +58,6 @@ export function RolesTab({ tenants }: RolesTabProps) {
   const deleteRole = useDeleteTenantRole();
 
   // Filter state
-  const [selectedTenantId, setSelectedTenantId] = useState<string | null>(null);
   const [roleSearch, setRoleSearch] = useState("");
 
   // EditRoleDrawer state
@@ -74,15 +71,12 @@ export function RolesTab({ tenants }: RolesTabProps) {
   const [editRole, setEditRole] = useState<TenantRole | null>(null);
   const [deleteRole2, setDeleteRole2] = useState<TenantRole | null>(null);
 
-  // Filter roles
+  // Filter roles: only show roles belonging to the current tenant
   const filteredRoles = roles.filter((r) => {
-    if (selectedTenantId && r.TenantID !== selectedTenantId) return false;
+    if (r.TenantID !== tenantId) return false;
     if (roleSearch && !r.Name.toLowerCase().includes(roleSearch.toLowerCase())) return false;
     return true;
   });
-
-  const tenantMap = new Map(tenants.map((t) => [t.ID, t.Name]));
-  const tenantOptions = tenants.map((t) => ({ value: t.ID, label: t.Name }));
 
   // Handlers
   const handleEditPermissions = (role: TenantRole) => {
@@ -101,7 +95,8 @@ export function RolesTab({ tenants }: RolesTabProps) {
   };
 
   const handleCreateRole = (values: RoleFormValues) => {
-    createRole.mutate(values, {
+    // Force tenant_id to current tenant
+    createRole.mutate({ ...values, tenant_id: tenantId }, {
       onSuccess: () => {
         closeAdd();
         notifications.show({ title: tc("success"), message: tr("success.created"), color: "green" });
@@ -153,14 +148,6 @@ export function RolesTab({ tenants }: RolesTabProps) {
     <Stack gap="md">
       {/* Filter bar */}
       <Group justify="space-between">
-        <Select
-          placeholder={t("tenants.modal.parentPlaceholder") ?? "Filter by tenant"}
-          data={tenantOptions}
-          value={selectedTenantId}
-          onChange={setSelectedTenantId}
-          clearable
-          w={250}
-        />
         <Group gap="sm">
           <TextInput
             placeholder={tr("searchPlaceholder")}
@@ -181,7 +168,6 @@ export function RolesTab({ tenants }: RolesTabProps) {
           <Table.Thead>
             <Table.Tr>
               <Table.Th><Text size="sm" fw={500}>{tr("colName")}</Text></Table.Th>
-              <Table.Th><Text size="sm" fw={500}>{tr("colTenant")}</Text></Table.Th>
               <Table.Th><Text size="sm" fw={500}>{tr("colCreated")}</Text></Table.Th>
               <Table.Th><Text size="sm" fw={500}>{""}</Text></Table.Th>
             </Table.Tr>
@@ -189,7 +175,7 @@ export function RolesTab({ tenants }: RolesTabProps) {
           <Table.Tbody>
             {filteredRoles.length === 0 ? (
               <Table.Tr>
-                <Table.Td colSpan={4}>
+                <Table.Td colSpan={3}>
                   <Text c="dimmed" ta="center" py="lg">No roles found</Text>
                 </Table.Td>
               </Table.Tr>
@@ -197,7 +183,6 @@ export function RolesTab({ tenants }: RolesTabProps) {
               filteredRoles.map((role) => (
                 <Table.Tr key={role.ID}>
                   <Table.Td><Text size="sm" fw={500}>{role.Name}</Text></Table.Td>
-                  <Table.Td><Text size="sm">{tenantMap.get(role.TenantID) ?? "—"}</Text></Table.Td>
                   <Table.Td><Text size="sm">{formatThaiDate(role.CreatedAt)}</Text></Table.Td>
                   <Table.Td>
                     <Group gap={4} wrap="nowrap">
@@ -224,7 +209,6 @@ export function RolesTab({ tenants }: RolesTabProps) {
         opened={drawerOpened}
         onClose={closeDrawer}
         role={selectedRole}
-        tenants={tenants}
       />
 
       {/* Role CRUD modals */}
@@ -233,7 +217,6 @@ export function RolesTab({ tenants }: RolesTabProps) {
         onClose={closeAdd}
         onSave={handleCreateRole}
         loading={createRole.isPending}
-        tenants={tenants}
       />
       <EditRoleModal
         opened={editOpened}
@@ -241,7 +224,6 @@ export function RolesTab({ tenants }: RolesTabProps) {
         onSave={handleUpdateRole}
         loading={updateRole.isPending}
         role={editRole}
-        tenants={tenants}
       />
       <DeleteRoleModal
         opened={deleteOpened}
