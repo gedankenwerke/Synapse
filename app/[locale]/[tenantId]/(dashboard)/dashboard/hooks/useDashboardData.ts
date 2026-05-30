@@ -46,7 +46,7 @@ export function useDashboardData() {
     queryFn: () => transaction.fetchPage({
       after: "",
       before: "",
-      limit: 1000,
+      limit: 200,
       start_date_time: today.start_date_time,
       end_date_time: today.end_date_time,
     }),
@@ -59,7 +59,7 @@ export function useDashboardData() {
     queryFn: () => transaction.fetchPage({
       after: "",
       before: "",
-      limit: 10000,
+      limit: 500,
       start_date_time: week.start_date_time,
       end_date_time: week.end_date_time,
     }),
@@ -72,7 +72,7 @@ export function useDashboardData() {
     queryFn: () => netBalance.fetchPage({
       after: "",
       before: "",
-      limit: 1000,
+      limit: 200,
       start_date_time: today.start_date_time,
       end_date_time: today.end_date_time,
     }),

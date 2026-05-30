@@ -31,6 +31,6 @@ export function useUsersQuery(search: string, selectedTenantId?: string | null) 
     initialPageParam: "",
     getNextPageParam: (lastPage) =>
       lastPage.after !== "" ? lastPage.after : undefined,
-    staleTime: 0,
+    staleTime: 30_000,
   });
 }

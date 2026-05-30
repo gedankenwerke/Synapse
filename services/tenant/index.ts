@@ -15,7 +15,6 @@ export const tenant = {
     if (data && Array.isArray((data as { Items: Tenant[] }).Items)) {
       return (data as { Items: Tenant[] }).Items;
     }
-    console.warn("[tenant.list] Unexpected response data shape:", typeof data, data);
     return [];
   },
 

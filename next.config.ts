@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
       "@mantine/notifications",
       "@mantine/dates",
       "@mantine/charts",
+      "@tabler/icons-react",
     ],
   },
   async rewrites() {

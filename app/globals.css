@@ -3,3 +3,19 @@ body {
   background-color: var(--mantine-color-body);
 }
 
+/* New row highlight animation — replaces motion/AnimatePresence for table rows */
+@keyframes row-highlight {
+  0% {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.row-highlight-new {
+  animation: row-highlight 0.3s ease-out;
+}
+

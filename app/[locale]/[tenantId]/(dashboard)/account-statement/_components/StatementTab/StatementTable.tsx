@@ -12,7 +12,6 @@ import {
   Tooltip,
 } from "@mantine/core";
 import { IconEye, IconArrowDown, IconArrowUp } from "@tabler/icons-react";
-import { motion, AnimatePresence } from "motion/react";
 import { useInView } from "react-intersection-observer";
 import { useTranslations } from "next-intl";
 import { COLUMNS } from "./columns";
@@ -79,7 +78,7 @@ export function StatementTable({
   }, [triggerLoadMore]);
 
   return (
-    <ScrollArea>
+    <ScrollArea h="calc(100dvh - 250px)">
       <Table striped highlightOnHover withTableBorder>
         <Table.Thead>
           <Table.Tr>
@@ -103,52 +102,42 @@ export function StatementTable({
             </Table.Tr>
           ) : (
             <>
-              <AnimatePresence>
-                {data.map((item) => {
-                  const key = getItemKey(item);
-                  const shouldAnimate = newItemIds.has(key) && !wasLoadingMoreRef.current;
-                  return (
-                    <motion.tr
-                      key={key}
-                      {...(shouldAnimate ? {
-                        initial: { opacity: 0, y: -20, scale: 0.95 },
-                        animate: { opacity: 1, y: 0, scale: 1 },
-                        transition: { duration: 0.3, ease: "easeOut" as const },
-                      } : {
-                        initial: false,
-                        animate: { opacity: 1, y: 0, scale: 1 },
-                        transition: { duration: 0.3 },
-                      })}
-                    >
-                      <Table.Td>{formatDateTime(item.trans_date)}</Table.Td>
-                      <Table.Td>{item.trno}</Table.Td>
-                      <Table.Td>
-                        <TypeBadge type={item.trans_type} />
-                      </Table.Td>
-                      <Table.Td>
-                        <Text c={item.trans_type === "Deposit" ? "green" : "red"} fw={500}>
-                          {item.trans_type === "Deposit" ? "+" : "-"}
-                          {formatBaht(item.amount)}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>{formatBankName(item.acct_bank, tb)}</Table.Td>
-                      <Table.Td>{displayOrNA(item.acct_no, tc("na"))}</Table.Td>
-                      <Table.Td>{getDisplayName(item)}</Table.Td>
-                      <Table.Td>
-                        <Tooltip label={tc("viewDetails")}>
-                          <ActionIcon
-                            variant="subtle"
-                            color="gray"
-                            onClick={() => onView(item)}
-                          >
-                            <IconEye size={16} />
-                          </ActionIcon>
-                        </Tooltip>
-                      </Table.Td>
-                    </motion.tr>
-                  );
-                })}
-              </AnimatePresence>
+              {data.map((item) => {
+                const key = getItemKey(item);
+                const isNew = newItemIds.has(key) && !wasLoadingMoreRef.current;
+                return (
+                  <Table.Tr
+                    key={key}
+                    className={isNew ? "row-highlight-new" : ""}
+                  >
+                    <Table.Td>{formatDateTime(item.trans_date)}</Table.Td>
+                    <Table.Td>{item.trno}</Table.Td>
+                    <Table.Td>
+                      <TypeBadge type={item.trans_type} />
+                    </Table.Td>
+                    <Table.Td>
+                      <Text c={item.trans_type === "Deposit" ? "green" : "red"} fw={500}>
+                        {item.trans_type === "Deposit" ? "+" : "-"}
+                        {formatBaht(item.amount)}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td>{formatBankName(item.acct_bank, tb)}</Table.Td>
+                    <Table.Td>{displayOrNA(item.acct_no, tc("na"))}</Table.Td>
+                    <Table.Td>{getDisplayName(item)}</Table.Td>
+                    <Table.Td>
+                      <Tooltip label={tc("viewDetails")}>
+                        <ActionIcon
+                          variant="subtle"
+                          color="gray"
+                          onClick={() => onView(item)}
+                        >
+                          <IconEye size={16} />
+                        </ActionIcon>
+                      </Tooltip>
+                    </Table.Td>
+                  </Table.Tr>
+                );
+              })}
               <Table.Tr ref={sentinelRef} style={{ height: 1 }}>
                 <Table.Td colSpan={COLUMNS.length}>
                   {loadingMore && (
